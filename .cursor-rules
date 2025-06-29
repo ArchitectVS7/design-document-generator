@@ -1,0 +1,28 @@
+# Cursor Rules for Design Document Generator v0.7.0
+
+## Current Phase Protection
+- Only modify files explicitly listed in the current phase
+- Do not modify files from other phases unless explicitly requested
+- Always confirm which files you plan to modify before making changes
+
+## Code Standards
+- Use TypeScript for type safety
+- Follow React functional components with hooks
+- Use Tailwind CSS for styling
+- Implement proper error handling
+- Add console.log for debugging during development
+
+## File Organization
+/src
+  /components     # React components
+  /types         # TypeScript type definitions
+  /utils         # Utility functions
+  /services      # API and external service calls
+  /hooks         # Custom React hooks
+  /data          # Static data and configurations
+
+## Version Control
+- Current version: 0.7.0
+- All changes must be tested before commit
+- Use descriptive commit messages
+- Work on feature branches for each phase
