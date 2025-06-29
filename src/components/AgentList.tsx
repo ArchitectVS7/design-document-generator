@@ -17,9 +17,6 @@ const AgentList: React.FC<AgentListProps> = ({
 }) => {
   const [editingAgent, setEditingAgent] = useState<AgentConfiguration | null>(null);
 
-  console.log('AgentList received agents:', agents);
-  console.log('Agent names:', agents.map(a => a.name));
-
   const getCategoryColor = (category: RoleCategory): string => {
     switch (category) {
       case RoleCategory.STRATEGIST:

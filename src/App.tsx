@@ -2,14 +2,26 @@ import React, { useState } from 'react';
 import Layout from './components/Layout';
 import AgentList from './components/AgentList';
 import ConfigurationManager from './components/ConfigurationManager';
+import ConversationFlow from './components/ConversationFlow';
 import { getVersionInfo, formatVersionDisplay, getVersionBadgeColor } from './utils/version';
 import { useAgentConfiguration } from './hooks/useAgentConfiguration';
 import { AgentConfiguration } from './types/agent';
+import { LLMProviderFactory } from './services/llmProvider';
+import './services/mockLLM'; // Ensure mock provider is registered
+import { LogViewer } from './components/LogViewer';
+import { logger } from './utils/logger';
 
 const App: React.FC = () => {
   const versionInfo = getVersionInfo();
   const versionDisplay = formatVersionDisplay();
   const badgeColor = getVersionBadgeColor();
+  
+  // Initialize LLM provider (using mock for now)
+  const llmProvider = LLMProviderFactory.create('mock', {
+    provider: 'mock',
+    model: 'mock-v1',
+    timeout: 1000
+  });
   
   // Agent configuration management
   const {
@@ -26,7 +38,8 @@ const App: React.FC = () => {
 
   // UI state
   const [selectedAgentId, setSelectedAgentId] = useState<number | undefined>();
-  const [activeTab, setActiveTab] = useState<'overview' | 'agents' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'agents' | 'conversation' | 'settings' | 'admin'>('overview');
+  const [showLogViewer, setShowLogViewer] = useState(false);
 
   const handleAgentSelect = (agent: AgentConfiguration) => {
     setSelectedAgentId(agent.id);
@@ -52,8 +65,6 @@ const App: React.FC = () => {
   };
 
   const handleConfigChange = (newConfig: any) => {
-    console.log('handleConfigChange called with config:', newConfig);
-    console.log('Config agents:', newConfig.agents);
     loadConfiguration(newConfig);
     console.log('Configuration updated from ConfigurationManager');
   };
@@ -166,6 +177,16 @@ const App: React.FC = () => {
             Agent Configuration ({agents.length})
           </button>
           <button
+            onClick={() => setActiveTab('conversation')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'conversation'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Conversation
+          </button>
+          <button
             onClick={() => setActiveTab('settings')}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
               activeTab === 'settings'
@@ -174,6 +195,16 @@ const App: React.FC = () => {
             }`}
           >
             Settings
+          </button>
+          <button
+            onClick={() => setActiveTab('admin')}
+            className={`py-2 px-1 border-b-2 font-medium text-sm ${
+              activeTab === 'admin'
+                ? 'border-primary-500 text-primary-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+            }`}
+          >
+            Admin
           </button>
         </nav>
       </div>
@@ -184,7 +215,7 @@ const App: React.FC = () => {
           {/* Phase Information */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Development Phase</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <span className="text-green-600 font-bold">✓</span>
@@ -202,11 +233,19 @@ const App: React.FC = () => {
                 <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Complete</span>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <span className="text-orange-600 font-bold">3</span>
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <span className="text-green-600 font-bold">✓</span>
                 </div>
                 <h4 className="font-medium text-gray-900 mb-2">Phase 3</h4>
                 <p className="text-sm text-gray-600">Configuration file management</p>
+                <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Complete</span>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <span className="text-orange-600 font-bold">4</span>
+                </div>
+                <h4 className="font-medium text-gray-900 mb-2">Phase 4</h4>
+                <p className="text-sm text-gray-600">LLM integration & conversation flow</p>
                 <span className="inline-block mt-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">Current</span>
               </div>
             </div>
@@ -256,6 +295,13 @@ const App: React.FC = () => {
                   <div className="text-sm text-gray-600">Customize agent roles and tasks</div>
                 </button>
                 <button
+                  onClick={() => setActiveTab('conversation')}
+                  className="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-colors"
+                >
+                  <div className="font-medium text-gray-900">Start Conversation</div>
+                  <div className="text-sm text-gray-600">Begin multi-agent document generation</div>
+                </button>
+                <button
                   onClick={handleSaveConfiguration}
                   disabled={!hasModifications}
                   className="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-colors disabled:opacity-50"
@@ -292,6 +338,15 @@ const App: React.FC = () => {
               </p>
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'conversation' && (
+        <div className="space-y-6">
+          <ConversationFlow
+            agents={agents}
+            llmProvider={llmProvider}
+          />
         </div>
       )}
 
@@ -335,6 +390,47 @@ const App: React.FC = () => {
         </div>
       )}
 
+      {activeTab === 'admin' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg shadow p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Admin Panel</h2>
+            
+            <div className="space-y-6">
+              <div className="border rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-4">System Logs</h3>
+                <p className="text-gray-600 mb-4">
+                  View real-time system logs for debugging and monitoring the conversation flow.
+                </p>
+                <button
+                  onClick={() => setShowLogViewer(true)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Open Log Viewer
+                </button>
+              </div>
+              
+              <div className="border rounded-lg p-4">
+                <h3 className="font-semibold text-gray-900 mb-4">System Information</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Version:</span>
+                    <span className="font-mono">0.7.0</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Total Agents:</span>
+                    <span className="font-mono">{agents.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Log Entries:</span>
+                    <span className="font-mono">{logger.getLogs().length}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Version Details */}
       <div className="mt-12 text-center">
         <div className="inline-flex items-center space-x-2 text-sm text-gray-500">
@@ -345,8 +441,14 @@ const App: React.FC = () => {
           <span>Built with React + TypeScript + Tailwind CSS</span>
         </div>
       </div>
+
+      {/* Log Viewer Modal */}
+      <LogViewer
+        isVisible={showLogViewer}
+        onClose={() => setShowLogViewer(false)}
+      />
     </Layout>
   );
 };
 
-export default App; 
+export default App;

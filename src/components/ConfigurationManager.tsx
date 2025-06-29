@@ -85,12 +85,9 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
 
   // Handle load saved configuration
   const handleLoadSaved = async (configId: string): Promise<ConfigurationFile | null> => {
-    console.log('handleLoadSaved called with configId:', configId);
     const config = await loadConfiguration('local', configId);
-    console.log('Loaded config from storage:', config);
     if (config) {
       // Apply the loaded configuration
-      console.log('Calling onConfigChange with:', config);
       onConfigChange(config);
       
       // Show success message

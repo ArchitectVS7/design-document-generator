@@ -234,9 +234,6 @@ export class ConfigurationService {
   private async saveToLocalStorage(config: ConfigurationFile): Promise<string> {
     const configId = `config_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    console.log('Saving configuration to localStorage with ID:', configId);
-    console.log('Configuration to save:', config);
-    
     // Get existing configurations
     const savedConfigs = localStorage.getItem(STORAGE_KEYS.CONFIGURATIONS);
     const configs = savedConfigs ? JSON.parse(savedConfigs) : {};
@@ -248,13 +245,10 @@ export class ConfigurationService {
     // Save as current configuration
     localStorage.setItem(STORAGE_KEYS.CURRENT_CONFIG, JSON.stringify(config));
     
-    console.log('Configuration saved successfully');
     return configId;
   }
 
   private async loadFromLocalStorage(configId?: string): Promise<ConfigurationFile> {
-    console.log('Loading from localStorage with configId:', configId);
-    
     if (configId) {
       // Load specific configuration
       const savedConfigs = localStorage.getItem(STORAGE_KEYS.CONFIGURATIONS);
@@ -263,15 +257,12 @@ export class ConfigurationService {
       }
 
       const configs = JSON.parse(savedConfigs);
-      console.log('Available configs:', Object.keys(configs));
       
       if (!configs[configId]) {
         throw new Error('Configuration not found');
       }
 
-      const loadedConfig = configs[configId];
-      console.log('Loaded configuration:', loadedConfig);
-      return loadedConfig;
+      return configs[configId];
     } else {
       // Load current configuration
       const currentConfig = localStorage.getItem(STORAGE_KEYS.CURRENT_CONFIG);
@@ -279,9 +270,7 @@ export class ConfigurationService {
         throw new Error('No current configuration found');
       }
 
-      const loadedConfig = JSON.parse(currentConfig);
-      console.log('Loaded current configuration:', loadedConfig);
-      return loadedConfig;
+      return JSON.parse(currentConfig);
     }
   }
 
