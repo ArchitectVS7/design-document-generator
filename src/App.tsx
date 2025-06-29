@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Layout from './components/Layout';
 import AgentList from './components/AgentList';
+import ConfigurationManager from './components/ConfigurationManager';
 import { getVersionInfo, formatVersionDisplay, getVersionBadgeColor } from './utils/version';
 import { useAgentConfiguration } from './hooks/useAgentConfiguration';
 import { AgentConfiguration } from './types/agent';
@@ -19,7 +20,8 @@ const App: React.FC = () => {
     isLoading,
     error,
     saveConfiguration,
-    resetToDefault
+    resetToDefault,
+    loadConfiguration
   } = useAgentConfiguration();
 
   // UI state
@@ -49,6 +51,37 @@ const App: React.FC = () => {
     }
   };
 
+  const handleConfigChange = (newConfig: any) => {
+    console.log('handleConfigChange called with config:', newConfig);
+    console.log('Config agents:', newConfig.agents);
+    loadConfiguration(newConfig);
+    console.log('Configuration updated from ConfigurationManager');
+  };
+
+  const handleAgentUpdate = (updatedAgent: any) => {
+    // Update the agent in the current configuration
+    if (currentConfig) {
+      const updatedAgents = agents.map(agent => 
+        agent.id === updatedAgent.id ? updatedAgent : agent
+      );
+      const updatedConfig = {
+        ...currentConfig,
+        agents: updatedAgents,
+        header: {
+          ...currentConfig.header,
+          modified: new Date().toISOString()
+        }
+      };
+      loadConfiguration(updatedConfig);
+      console.log('Agent updated:', updatedAgent.role.title);
+    }
+  };
+
+  // Check if configuration has been modified (either through agent updates or other changes)
+  const hasModifications = isModified || agents.some(agent => 
+    new Date(agent.modified).getTime() > new Date(agent.created).getTime()
+  );
+
   return (
     <Layout>
       {/* Header with version and actions */}
@@ -73,7 +106,7 @@ const App: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={handleSaveConfiguration}
-              disabled={isLoading || !isModified}
+              disabled={isLoading || (!hasModifications && !currentConfig)}
               className="bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 text-white font-medium py-2 px-4 rounded-lg transition-colors"
             >
               {isLoading ? 'Saving...' : 'Save Configuration'}
@@ -153,25 +186,28 @@ const App: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Development Phase</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <span className="text-primary-600 font-bold">1</span>
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <span className="text-green-600 font-bold">✓</span>
                 </div>
                 <h4 className="font-medium text-gray-900 mb-2">Phase 1</h4>
                 <p className="text-sm text-gray-600">Basic React application with Tailwind CSS</p>
+                <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Complete</span>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <span className="text-primary-600 font-bold">2</span>
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <span className="text-green-600 font-bold">✓</span>
                 </div>
                 <h4 className="font-medium text-gray-900 mb-2">Phase 2</h4>
                 <p className="text-sm text-gray-600">Agent configuration system</p>
+                <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Complete</span>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <span className="text-gray-400 font-bold">3</span>
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <span className="text-orange-600 font-bold">3</span>
                 </div>
                 <h4 className="font-medium text-gray-900 mb-2">Phase 3</h4>
-                <p className="text-sm text-gray-600">LLM integration and execution</p>
+                <p className="text-sm text-gray-600">Configuration file management</p>
+                <span className="inline-block mt-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">Current</span>
               </div>
             </div>
           </div>
@@ -221,7 +257,7 @@ const App: React.FC = () => {
                 </button>
                 <button
                   onClick={handleSaveConfiguration}
-                  disabled={!isModified}
+                  disabled={!hasModifications}
                   className="w-full text-left p-3 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50 transition-colors disabled:opacity-50"
                 >
                   <div className="font-medium text-gray-900">Save Configuration</div>
@@ -246,12 +282,13 @@ const App: React.FC = () => {
             agents={agents}
             onAgentSelect={handleAgentSelect}
             selectedAgentId={selectedAgentId}
+            onAgentUpdate={handleAgentUpdate}
           />
           
           {selectedAgentId && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-800">
-                Agent {selectedAgentId} selected. Agent editing interface coming in Phase 3.
+                Agent {selectedAgentId} selected. Click "Edit" on any agent to modify its configuration.
               </p>
             </div>
           )}
@@ -259,29 +296,40 @@ const App: React.FC = () => {
       )}
 
       {activeTab === 'settings' && (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">System Settings</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium text-gray-900">Default LLM Provider</h4>
-                <p className="text-sm text-gray-600">{currentConfig?.settings.defaultLLM || 'Not configured'}</p>
+        <div className="space-y-6">
+          {/* Configuration Manager */}
+          {currentConfig && (
+            <ConfigurationManager
+              currentConfig={currentConfig}
+              onConfigChange={handleConfigChange}
+            />
+          )}
+          
+          {/* System Settings */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">System Settings</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-gray-900">Default LLM Provider</h4>
+                  <p className="text-sm text-gray-600">{currentConfig?.settings.defaultLLM || 'Not configured'}</p>
+                </div>
+                <span className="text-sm text-gray-500">Coming in Phase 3</span>
               </div>
-              <span className="text-sm text-gray-500">Coming in Phase 3</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium text-gray-900">Auto Save</h4>
-                <p className="text-sm text-gray-600">Automatically save configuration changes</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-gray-900">Auto Save</h4>
+                  <p className="text-sm text-gray-600">Automatically save configuration changes</p>
+                </div>
+                <span className="text-sm text-gray-500">Coming in Phase 3</span>
               </div>
-              <span className="text-sm text-gray-500">Coming in Phase 3</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium text-gray-900">Quality Gates</h4>
-                <p className="text-sm text-gray-600">Review agent outputs before proceeding</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-medium text-gray-900">Quality Gates</h4>
+                  <p className="text-sm text-gray-600">Review agent outputs before proceeding</p>
+                </div>
+                <span className="text-sm text-gray-500">Coming in Phase 3</span>
               </div>
-              <span className="text-sm text-gray-500">Coming in Phase 3</span>
             </div>
           </div>
         </div>

@@ -189,6 +189,8 @@ export const useAgentConfiguration = () => {
 
   // Load configuration
   const loadConfiguration = useCallback(async (configData: ConfigurationFile, options: ConfigurationLoadOptions = {}) => {
+    console.log('loadConfiguration called with:', configData);
+    console.log('Config agents:', configData.agents);
     setIsLoading(true);
     setError(null);
 
@@ -209,10 +211,12 @@ export const useAgentConfiguration = () => {
         }
       }
 
+      console.log('Setting currentConfig and agents...');
       setCurrentConfig(configData);
       setAgents(configData.agents);
       setIsModified(false);
       console.log('Configuration loaded successfully');
+      console.log('New agents state:', configData.agents);
 
       return configData;
     } catch (err) {
@@ -257,6 +261,12 @@ export const useAgentConfiguration = () => {
       setValidationStatus(validation);
     }
   }, [agents, currentConfig]);
+
+  // Debug effect to monitor agents state changes
+  useEffect(() => {
+    console.log('Agents state changed:', agents);
+    console.log('Agent names:', agents.map(a => a.name));
+  }, [agents]);
 
   return {
     // State
