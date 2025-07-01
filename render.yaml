@@ -14,10 +14,8 @@ services:
         value: 10000
       # Add other backend environment variables here
 
-  - type: web
+  - type: static
     name: frontend
-    env: static
-    plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     envVars:
