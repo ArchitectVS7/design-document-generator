@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from './components/Layout';
 import AgentList from './components/AgentList';
 import ConfigurationManager from './components/ConfigurationManager';
@@ -17,12 +17,56 @@ const App: React.FC = () => {
   const badgeColor = getVersionBadgeColor();
   
   // Initialize LLM provider (using mock for now)
-  const llmProvider = LLMProviderFactory.create('mock', {
-    provider: 'mock',
-    model: 'mock-v1',
-    timeout: 1000
-  });
-  
+  const [offlineMode, setOfflineMode] = useState(false); // Default to online (Anthropic)
+  const [llmStatus, setLlmStatus] = useState<'online' | 'offline' | 'error'>('offline');
+  const [dbStatus, setDbStatus] = useState<'online' | 'offline' | 'error'>('offline');
+  const [llmError, setLlmError] = useState<string | null>(null);
+
+  // LLM provider selection
+  const llmProvider = offlineMode
+    ? LLMProviderFactory.create('mock', { provider: 'mock', model: 'mock-v1', timeout: 1000 })
+    : LLMProviderFactory.create('anthropic', { provider: 'anthropic', model: 'claude-3-sonnet', timeout: 10000 });
+
+  // LLM connection check (ping Anthropic endpoint if online)
+  useEffect(() => {
+    if (offlineMode) {
+      setLlmStatus('offline');
+      setLlmError(null);
+      return;
+    }
+    (async () => {
+      try {
+        await llmProvider.complete({
+          prompt: 'ping',
+          maxTokens: 1,
+          temperature: 0.1,
+          outputFormat: 'text',
+        });
+        setLlmStatus('online');
+        setLlmError(null);
+      } catch (e: any) {
+        setLlmStatus('error');
+        setLlmError(e?.message || 'LLM connection failed');
+      }
+    })();
+  }, [offlineMode]);
+
+  // DB connection check (ping backend health or sessions endpoint)
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/api/v1/sessions', { method: 'GET' });
+        if (res.ok) {
+          setDbStatus('online');
+        } else {
+          setDbStatus('error');
+        }
+      } catch {
+        setDbStatus('offline');
+      }
+    })();
+  }, []);
+
   // Agent configuration management
   const {
     agents,
@@ -335,6 +379,30 @@ const App: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* LLM Connection */}
+          <div className="mb-6 flex items-center gap-8">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">LLM Connection:</span>
+              <span className={`inline-block w-3 h-3 rounded-full ${llmStatus === 'online' ? 'bg-green-500' : llmStatus === 'offline' ? 'bg-red-500' : 'bg-yellow-500'}`}></span>
+              <span className="text-xs text-gray-600">{llmStatus === 'online' ? 'Anthropic (Online)' : llmStatus === 'offline' ? 'Offline (Mock)' : 'Error'}</span>
+              {llmError && <span className="text-xs text-red-500 ml-2">{llmError}</span>}
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">DB Connection:</span>
+              <span className={`inline-block w-3 h-3 rounded-full ${dbStatus === 'online' ? 'bg-green-500' : dbStatus === 'offline' ? 'bg-red-500' : 'bg-yellow-500'}`}></span>
+              <span className="text-xs text-gray-600">{dbStatus === 'online' ? 'Online' : dbStatus === 'offline' ? 'Offline' : 'Error'}</span>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={offlineMode}
+                onChange={e => setOfflineMode(e.target.checked)}
+                className="form-checkbox"
+              />
+              <span className="text-sm">Offline Test Mode</span>
+            </label>
+          </div>
         </div>
       )}
 
@@ -463,6 +531,20 @@ const App: React.FC = () => {
         isVisible={showLogViewer}
         onClose={() => setShowLogViewer(false)}
       />
+
+      {/* Add a user-friendly error message if LLM connection fails and offlineMode is false */}
+      {llmStatus === 'error' && !offlineMode && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center">
+            <div className="text-red-400 mr-3">⚠️</div>
+            <div>
+              <h3 className="text-sm font-medium text-red-800">LLM Connection Error</h3>
+              <p className="text-sm text-red-700 mt-1">{llmError || 'Unable to connect to Anthropic LLM. Please check your API key or network.'}</p>
+              <p className="text-xs text-gray-500 mt-1">You can switch to Offline Test Mode to use the mock LLM for testing.</p>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

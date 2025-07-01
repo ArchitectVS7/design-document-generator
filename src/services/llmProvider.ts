@@ -199,4 +199,36 @@ export const DEFAULT_LLM_CONFIGS: Record<string, LLMProviderConfig> = {
     model: 'claude-3-haiku-20240307',
     timeout: 30000
   }
-}; 
+};
+
+export class AnthropicLLMProvider extends BaseLLMProvider {
+  async complete(request: LLMRequest): Promise<LLMResponse> {
+    const response = await fetch('/api/v1/llm/anthropic', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Anthropic LLM proxy error');
+    }
+    const data = await response.json();
+    // Map Anthropic API response to LLMResponse shape
+    return {
+      content: data.content?.[0]?.text || '',
+      usage: {
+        promptTokens: data.usage?.input_tokens || 0,
+        completionTokens: data.usage?.output_tokens || 0,
+        totalTokens: (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0)
+      },
+      metadata: {
+        model: data.model || 'claude-3-sonnet-20240229',
+        provider: 'anthropic',
+        timestamp: new Date().toISOString(),
+        duration: 0
+      }
+    };
+  }
+}
+
+LLMProviderFactory.register('anthropic', AnthropicLLMProvider); 

@@ -3,6 +3,7 @@ import { ConfigurationFile } from '../types/configuration';
 import { useConfigurationFile } from '../hooks/useConfigurationFile';
 import SaveLoadModal from './SaveLoadModal';
 import { MigrationSystem } from '../utils/migration';
+import WorkflowTemplateManager from './WorkflowTemplateManager';
 
 interface ConfigurationManagerProps {
   currentConfig: ConfigurationFile;
@@ -25,6 +26,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
   const [migrationComplete, setMigrationComplete] = useState(false);
   const [migratedConfig, setMigratedConfig] = useState<ConfigurationFile | null>(null);
   const [importSuccess, setImportSuccess] = useState<string | null>(null);
+  const [isTemplateManagerOpen, setIsTemplateManagerOpen] = useState(false);
 
   const {
     isLoading,
@@ -179,6 +181,12 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
           </p>
         </div>
         <div className="flex items-center space-x-3">
+          <button
+            onClick={() => setIsTemplateManagerOpen(true)}
+            className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors"
+          >
+            Workflow Templates
+          </button>
           <button
             onClick={() => exportFile(currentConfig)}
             className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -493,6 +501,17 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Workflow Template Manager */}
+      {isTemplateManagerOpen && (
+        <WorkflowTemplateManager
+          onApplyTemplate={(config) => {
+            onConfigChange(config);
+            setIsTemplateManagerOpen(false);
+          }}
+          onClose={() => setIsTemplateManagerOpen(false)}
+        />
       )}
     </div>
   );

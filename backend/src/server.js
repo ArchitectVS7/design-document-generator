@@ -16,6 +16,7 @@ import supabaseProxy from './services/supabaseProxy.js';
 // Import routes
 import configurationRoutes from './routes/configurations.js';
 import sessionRoutes from './routes/sessions.js';
+import llmRoutes from './routes/llm.js';
 
 // Import middleware
 import authMiddleware from './middleware/auth.js';
@@ -169,6 +170,9 @@ class Server {
     
     // Session routes
     this.app.use(`${apiPath}/sessions`, sessionRoutes);
+
+    // LLM routes
+    this.app.use('/api/v1/llm', llmRoutes);
 
     // 404 handler for API routes
     this.app.use(`${apiPath}/*`, (req, res) => {
