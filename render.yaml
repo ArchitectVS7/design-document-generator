@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: design-doc-db
+          property: connectionString
+      - key: PORT
+        value: 10000
+      # Add other backend environment variables here
+
+  - type: static
+    name: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://backend-<your-app-slug>.onrender.com
+      # Add other frontend environment variables here
+
+databases:
+  - name: design-doc-db
+    plan: free
+    databaseName: design_doc_db
+    user: design_doc_user
+    # Render will auto-generate password and connection string 
