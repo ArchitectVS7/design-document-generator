@@ -108,4 +108,57 @@ The Design Document Generator is a human-in-the-loop AI system that transforms a
 5. AI-powered document quality assessment
 6. Internationalization (i18n) support (deferred)
 
+# Versioning Convention for Development Lifecycle
+
+## 📌 Versioning Milestones
+
+- **0.7** — Internal Testing
+- **0.8** — Alpha Testing
+- **0.9** — Beta Testing
+- **1.0+** — Production Release
+
+---
+
+## ✅ Task 1: Versions Between Initial Idea and Internal Testing (0.1 → 0.7)
+
+| Version | Stage                          | Description |
+|---------|--------------------------------|-------------|
+| 0.1     | **Idea Draft**                 | Initial spec, raw concept, goals, and problem statements written down. |
+| 0.2     | **Research & Exploration**     | Market/tech research, feature brainstorms, constraints defined. |
+| 0.3     | **Requirements Drafted**       | PRD written, early diagrams, task breakdown initiated. |
+| 0.4     | **Scaffolding**                | Project initialized, folder structure, basic tech stack setup. |
+| 0.5     | **Prototype Phase I**          | Core functionality proof-of-concept built (not fully functional). |
+| 0.6     | **Prototype Phase II**         | Functional prototype with basic I/O, partial feature set. |
+| 0.7     | **Internal Testing Ready**     | All baseline functionality wired and testable by core team. |
+
+---
+
+## ✅ Task 2: Versions Between Internal Testing and Beta (0.7.x → 0.9)
+
+| Version  | Stage                      | Description |
+|----------|----------------------------|-------------|
+| 0.7.0    | **Test Environment Setup** | Internal testing infra configured; first run-throughs begin on local machine. |
+| 0.7.1    | **Online Preps**           | Refactoring of code to be compliant with onloine deployment |
+| 0.7.2    | **Online Deployment**      | Deployment to online version; initial testing of all connections |
+| 0.7.3    | **PRD Alignment**          | Audit code vs PRD and perform user testing to ensure compliance |
+| 0.7.4    | **Bug Fixing**             | Testing of all major functions with debug log audits |
+| 0.7.5    | **UX Audit & Improvements**| First UX feedback applied from internal testers. |
+| 0.7.6    | **====TBD====**            | *** TBD *** | 
+| 0.7.7    | **====TBD====**            | *** TBD *** |
+| 0.7.8    |  **Performance Tuning**    | Refactor heavy code, improve load/start times, reduce crashes. |
+| 0.7.9    | **Feature Lock**           | All major features complete or stubbed. Minor polish continues. |
+| 0.8.0    | **Alpha Testing**          | Open to friendly users or closed circle outside dev team. |
+
+---
+
+## 🔧 Optional Semantic Layer
+
+- **Major.minor.patch.dev** (e.g. `0.6.2-dev1`) for internal variants
+- Tagged pre-release branches (e.g. `0.5-exp-database-v2`) for experiments
+
+---
+
+> This versioning structure is designed to make progress measurable, predictable, and clear for both developers and stakeholders.
+
+
 This PRD provides a foundation for further development and refinement of the Design Document Generator application, ensuring alignment with user needs and technical feasibility. 
