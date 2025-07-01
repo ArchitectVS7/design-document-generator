@@ -1,81 +1,64 @@
-// Database Configuration v0.7.0 (Supabase Only)
+// Database Configuration v0.8.0 (PostgreSQL for Render)
 import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
+import pkg from 'pg';
 
+const { Pool } = pkg;
 dotenv.config();
 
 class DatabaseConfig {
   constructor() {
-    this.dbType = 'supabase';
-    this.supabase = null;
+    this.dbType = 'postgresql';
+    this.pool = null;
   }
 
-  // Get database type (always supabase)
+  // Get database type
   getDatabaseType() {
     return this.dbType;
   }
 
-  // Initialize Supabase connection
-  async initSupabase() {
+  // Initialize PostgreSQL connection pool
+  async initialize() {
+    if (this.pool) return this.pool;
+    const databaseUrl = process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL environment variable is required');
+    }
+    this.pool = new Pool({ connectionString: databaseUrl });
+    // Test connection
     try {
-      const supabaseUrl = process.env.SUPABASE_URL;
-      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-      if (!supabaseUrl || !supabaseKey) {
-        throw new Error('Supabase URL and service role key are required');
-      }
-
-      this.supabase = createClient(supabaseUrl, supabaseKey, {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      });
-
-      // Test connection
-      const { data, error } = await this.supabase.from('configurations').select('count').limit(1);
-      if (error) throw error;
-
-      console.log('✅ Supabase connection established');
-      return this.supabase;
+      await this.pool.query('SELECT 1');
+      console.log('✅ PostgreSQL connection established');
     } catch (error) {
-      console.error('❌ Supabase connection failed:', error.message);
+      console.error('❌ PostgreSQL connection failed:', error.message);
       throw error;
     }
+    return this.pool;
   }
 
-  // Initialize database (Supabase only)
-  async initialize() {
-    try {
-      return await this.initSupabase();
-    } catch (error) {
-      console.error('Database initialization failed:', error.message);
-      // Return null instead of throwing for testing
-      return null;
-    }
-  }
-
-  // Get current database connection
+  // Get current database connection pool
   getConnection() {
-    return this.supabase;
+    return this.pool;
   }
 
-  // Close database connection
+  // Close database connection pool
   async close() {
-    // Supabase connections are managed automatically
-    console.log('Supabase connection closed');
+    if (this.pool) {
+      await this.pool.end();
+      this.pool = null;
+      console.log('PostgreSQL connection closed');
+    }
   }
 
   // Get database status
   async getStatus() {
     try {
-      const { data, error } = await this.supabase.from('configurations').select('count').limit(1);
-      if (error) throw error;
+      await this.initialize();
+      await this.pool.query('SELECT 1');
       return {
-        type: 'supabase',
+        type: 'postgresql',
         status: 'connected',
         timestamp: new Date().toISOString(),
-        version: 'supabase'
+        version: 'pg'
       };
     } catch (error) {
       return {

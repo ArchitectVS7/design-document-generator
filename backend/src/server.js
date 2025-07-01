@@ -64,8 +64,12 @@ class Server {
     }));
 
     // CORS configuration
+    const allowedOrigins = [
+      "https://frontend-g7gc.onrender.com",
+      "http://localhost:5173"
+    ];
     this.app.use(cors({
-      origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+      origin: allowedOrigins,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'x-api-key']
