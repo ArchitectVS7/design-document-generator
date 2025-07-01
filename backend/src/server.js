@@ -11,9 +11,11 @@ import { fileURLToPath } from 'url';
 // Import configurations and services
 import databaseConfig from './config/database.js';
 import sessionConfig from './config/session.js';
+import supabaseProxy from './services/supabaseProxy.js';
 
 // Import routes
 import configurationRoutes from './routes/configurations.js';
+import sessionRoutes from './routes/sessions.js';
 
 // Import middleware
 import authMiddleware from './middleware/auth.js';
@@ -153,31 +155,10 @@ class Server {
       }
     });
 
-    // Database switch endpoint (admin only)
-    this.app.post('/api/admin/database/switch', authMiddleware.authenticateApiKey, authMiddleware.requireAdmin, async (req, res) => {
-      try {
-        const { dbType } = req.body;
-        if (!dbType || !['postgresql', 'supabase'].includes(dbType)) {
-          return res.status(400).json({
-            success: false,
-            error: 'Invalid database type',
-            message: 'Database type must be "postgresql" or "supabase"'
-          });
-        }
-
-        await databaseConfig.switchDatabaseType(dbType);
-        res.json({
-          success: true,
-          message: `Database switched to ${dbType} successfully`,
-          data: { currentType: dbType }
-        });
-      } catch (error) {
-        res.status(500).json({
-          success: false,
-          error: 'Failed to switch database',
-          message: error.message
-        });
-      }
+    // Health check endpoint for Supabase
+    this.app.get('/api/v1/health/supabase', async (req, res) => {
+      const health = await supabaseProxy.healthCheck();
+      res.json(health);
     });
 
     // API routes with versioning
@@ -185,6 +166,9 @@ class Server {
     
     // Configuration routes
     this.app.use(`${apiPath}/configurations`, configurationRoutes);
+    
+    // Session routes
+    this.app.use(`${apiPath}/sessions`, sessionRoutes);
 
     // 404 handler for API routes
     this.app.use(`${apiPath}/*`, (req, res) => {

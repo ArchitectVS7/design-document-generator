@@ -215,7 +215,7 @@ const App: React.FC = () => {
           {/* Phase Information */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Development Phase</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
               <div className="text-center">
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
                   <span className="text-green-600 font-bold">✓</span>
@@ -241,12 +241,28 @@ const App: React.FC = () => {
                 <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Complete</span>
               </div>
               <div className="text-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                  <span className="text-orange-600 font-bold">4</span>
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <span className="text-green-600 font-bold">✓</span>
                 </div>
                 <h4 className="font-medium text-gray-900 mb-2">Phase 4</h4>
                 <p className="text-sm text-gray-600">LLM integration & conversation flow</p>
+                <span className="inline-block mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Complete</span>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <span className="text-orange-600 font-bold">5</span>
+                </div>
+                <h4 className="font-medium text-gray-900 mb-2">Phase 5</h4>
+                <p className="text-sm text-gray-600">Database Integration (Backend)</p>
                 <span className="inline-block mt-2 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">Current</span>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                  <span className="text-gray-600 font-bold">6</span>
+                </div>
+                <h4 className="font-medium text-gray-900 mb-2">Phase 6</h4>
+                <p className="text-sm text-gray-600">Real LLM Integration</p>
+                <span className="inline-block mt-2 px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">Planned</span>
               </div>
             </div>
           </div>
