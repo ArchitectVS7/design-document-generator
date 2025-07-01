@@ -1,0 +1,308 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Frontend Project Structure",
+        "description": "Initialize the React TypeScript project with Vite.js and configure Tailwind CSS for styling.",
+        "details": "1. Create a new Vite.js project with React and TypeScript template:\n```bash\nnpm create vite@latest design-document-generator --template react-ts\ncd design-document-generator\nnpm install\n```\n2. Install and configure Tailwind CSS:\n```bash\nnpm install -D tailwindcss postcss autoprefixer\nnpx tailwindcss init -p\n```\n3. Configure Tailwind CSS in tailwind.config.js:\n```javascript\nmodule.exports = {\n  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],\n  theme: {\n    extend: {},\n  },\n  plugins: [],\n}\n```\n4. Add Tailwind directives to src/index.css:\n```css\n@tailwind base;\n@tailwind components;\n@tailwind utilities;\n```\n5. Set up ESLint and Prettier for code quality:\n```bash\nnpm install -D eslint prettier eslint-plugin-react eslint-config-prettier eslint-plugin-prettier\n```\n6. Create basic folder structure:\n```\nsrc/\n  components/\n  pages/\n  hooks/\n  services/\n  utils/\n  types/\n  assets/\n  context/\n```",
+        "testStrategy": "1. Verify that the project builds successfully with `npm run build`\n2. Ensure that Tailwind CSS is working by adding a test component with Tailwind classes\n3. Validate ESLint and Prettier configurations by running `npm run lint` (after setting up the script)\n4. Check that the development server starts correctly with `npm run dev`",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Setup Backend Project Structure",
+        "description": "Initialize the Node.js with Express.js backend project and configure the SQL database with migration support.",
+        "details": "1. Create a new directory for the backend:\n```bash\nmkdir backend\ncd backend\nnpm init -y\n```\n2. Install core dependencies:\n```bash\nnpm install express cors dotenv helmet morgan\nnpm install -D typescript ts-node @types/express @types/cors @types/node nodemon\n```\n3. Create a TypeScript configuration file (tsconfig.json):\n```json\n{\n  \"compilerOptions\": {\n    \"target\": \"es6\",\n    \"module\": \"commonjs\",\n    \"outDir\": \"./dist\",\n    \"rootDir\": \"./src\",\n    \"strict\": true,\n    \"esModuleInterop\": true,\n    \"skipLibCheck\": true,\n    \"forceConsistentCasingInFileNames\": true\n  },\n  \"include\": [\"src/**/*\"],\n  \"exclude\": [\"node_modules\", \"**/*.test.ts\"]\n}\n```\n4. Install database dependencies (using PostgreSQL as an example):\n```bash\nnpm install pg knex\nnpm install -D @types/pg\n```\n5. Set up Knex for migrations:\n```bash\nnpm install -g knex\nknex init\n```\n6. Configure knexfile.js for different environments\n7. Create basic folder structure:\n```\nsrc/\n  controllers/\n  models/\n  routes/\n  middleware/\n  services/\n  utils/\n  config/\n  migrations/\n  seeds/\n```\n8. Create a basic server.ts file with Express setup",
+        "testStrategy": "1. Verify that the server starts without errors\n2. Test database connection\n3. Run a test migration to ensure the migration system works\n4. Create a simple health-check endpoint and test it with a REST client or curl\n5. Verify that environment variables are loaded correctly",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Design Database Schema",
+        "description": "Design and implement the database schema for storing user sessions, agent configurations, and document versions.",
+        "details": "1. Design the following tables:\n   - users (id, email, password_hash, name, created_at, updated_at)\n   - sessions (id, user_id, name, description, status, created_at, updated_at)\n   - agent_configurations (id, name, role, icon, prompt_template, created_at, updated_at)\n   - workflow_templates (id, name, description, configuration, created_at, updated_at)\n   - session_agents (id, session_id, agent_configuration_id, order, status, created_at, updated_at)\n   - agent_outputs (id, session_agent_id, raw_prompt, approved_prompt, raw_response, approved_response, created_at, updated_at)\n   - documents (id, session_id, version, content, format, created_at, updated_at)\n\n2. Create migration files using Knex:\n```bash\nknex migrate:make create_users_table\nknex migrate:make create_sessions_table\n# ... and so on for each table\n```\n\n3. Implement the migrations with proper foreign key constraints, indexes, and timestamps\n\n4. Create seed data for default agent configurations and workflow templates",
+        "testStrategy": "1. Run migrations to verify they execute without errors\n2. Run seed data insertion to verify it works correctly\n3. Perform CRUD operations on each table to ensure the schema works as expected\n4. Test foreign key constraints by attempting to violate them\n5. Verify indexes are created correctly by examining the database schema",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Implement Authentication System",
+        "description": "Create a secure authentication system with token-based authentication, user registration, and login functionality.",
+        "details": "1. Install authentication dependencies:\n```bash\nnpm install bcrypt jsonwebtoken cookie-parser\nnpm install -D @types/bcrypt @types/jsonwebtoken @types/cookie-parser\n```\n\n2. Create authentication middleware:\n   - Implement JWT token verification\n   - Create middleware for protected routes\n\n3. Create authentication controllers:\n   - Register user endpoint\n   - Login endpoint\n   - Logout endpoint\n   - Refresh token endpoint\n   - Password reset functionality\n\n4. Implement secure password hashing with bcrypt\n\n5. Set up token-based authentication with JWT:\n   - Access tokens (short-lived)\n   - Refresh tokens (longer-lived)\n   - Secure, httpOnly cookies for token storage\n\n6. Implement rate limiting for authentication endpoints:\n```javascript\nconst rateLimit = require('express-rate-limit');\n\nconst authLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 5, // 5 requests per windowMs\n  message: 'Too many login attempts, please try again later'\n});\n\napp.use('/api/auth/login', authLimiter);\n```",
+        "testStrategy": "1. Unit test password hashing and verification\n2. Test JWT token generation and verification\n3. Test authentication middleware with valid and invalid tokens\n4. Integration test for user registration flow\n5. Integration test for login flow\n6. Test rate limiting by making multiple requests\n7. Test token refresh functionality\n8. Verify that protected routes reject unauthenticated requests",
+        "priority": "high",
+        "dependencies": [
+          2,
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Implement LLM Integration Service",
+        "description": "Create a service to integrate with AI language models (LLMs) for generating document content.",
+        "details": "1. Install required dependencies:\n```bash\nnpm install axios openai\n```\n\n2. Create an LLM service with the following features:\n   - Support for multiple LLM providers (OpenAI, Anthropic, etc.)\n   - Configurable API keys and endpoints\n   - Retry mechanism for failed requests\n   - Rate limiting and throttling\n   - Streaming response support\n\n3. Implement prompt formatting and context building:\n```typescript\ninterface PromptContext {\n  agentRole: string;\n  previousOutputs: Array<{ agent: string, output: string }>;\n  userInput: string;\n  templateVariables: Record<string, string>;\n}\n\nclass LLMService {\n  async generatePrompt(template: string, context: PromptContext): Promise<string> {\n    // Replace template variables with context values\n    // Format the prompt according to the LLM's requirements\n  }\n  \n  async sendPrompt(prompt: string, options: LLMOptions): Promise<LLMResponse> {\n    // Send the prompt to the LLM API\n    // Handle errors, retries, and rate limiting\n  }\n}\n```\n\n4. Implement response parsing and formatting\n5. Create a configuration system for LLM parameters (temperature, max tokens, etc.)\n6. Add logging for all LLM interactions",
+        "testStrategy": "1. Unit test prompt formatting with various templates and contexts\n2. Mock LLM API responses to test the service without making actual API calls\n3. Test error handling and retry mechanism\n4. Test rate limiting functionality\n5. Integration test with actual LLM APIs (in a controlled environment)\n6. Test streaming response handling\n7. Verify that all interactions are properly logged",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Create Session Management API",
+        "description": "Implement API endpoints for creating, retrieving, updating, and deleting user sessions.",
+        "details": "1. Create session controller with the following endpoints:\n   - POST /api/sessions - Create a new session\n   - GET /api/sessions - List user's sessions\n   - GET /api/sessions/:id - Get session details\n   - PUT /api/sessions/:id - Update session\n   - DELETE /api/sessions/:id - Delete session\n   - POST /api/sessions/:id/duplicate - Duplicate an existing session\n\n2. Implement session model with Knex:\n```typescript\nclass SessionModel {\n  async create(userId: string, data: SessionCreateData): Promise<Session> {\n    // Create a new session in the database\n  }\n  \n  async findById(id: string): Promise<Session | null> {\n    // Find a session by ID\n  }\n  \n  async findByUser(userId: string): Promise<Session[]> {\n    // Find all sessions for a user\n  }\n  \n  // Other CRUD methods\n}\n```\n\n3. Implement session validation middleware\n4. Add pagination for session listing\n5. Implement filtering and sorting options\n6. Add session status tracking (active, completed, archived)",
+        "testStrategy": "1. Unit test session model methods\n2. Integration test for each API endpoint\n3. Test authentication and authorization for session endpoints\n4. Test pagination, filtering, and sorting\n5. Test session duplication functionality\n6. Verify that session status updates correctly\n7. Test error handling for invalid inputs and edge cases",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Implement Agent Configuration API",
+        "description": "Create API endpoints for managing agent configurations, including CRUD operations and template management.",
+        "details": "1. Create agent configuration controller with the following endpoints:\n   - POST /api/agent-configs - Create a new agent configuration\n   - GET /api/agent-configs - List agent configurations\n   - GET /api/agent-configs/:id - Get agent configuration details\n   - PUT /api/agent-configs/:id - Update agent configuration\n   - DELETE /api/agent-configs/:id - Delete agent configuration\n   - GET /api/agent-configs/templates - Get predefined agent templates\n\n2. Implement agent configuration model with Knex:\n```typescript\nclass AgentConfigModel {\n  async create(data: AgentConfigCreateData): Promise<AgentConfig> {\n    // Create a new agent configuration in the database\n  }\n  \n  async findById(id: string): Promise<AgentConfig | null> {\n    // Find an agent configuration by ID\n  }\n  \n  async findAll(): Promise<AgentConfig[]> {\n    // Find all agent configurations\n  }\n  \n  // Other CRUD methods\n}\n```\n\n3. Create predefined agent templates:\n   - Product Strategist\n   - Customer Persona\n   - UI/UX Product Manager\n   - Creative Director\n   - Market Researcher\n   - Visual Researcher\n   - Frontend Architect\n\n4. Implement validation for agent configuration data\n5. Add support for agent icons (upload or selection from predefined set)",
+        "testStrategy": "1. Unit test agent configuration model methods\n2. Integration test for each API endpoint\n3. Test validation for required fields and data formats\n4. Test predefined template retrieval\n5. Test agent icon handling\n6. Verify that agent configurations can be properly associated with sessions\n7. Test error handling for invalid inputs and edge cases",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Implement Workflow Template API",
+        "description": "Create API endpoints for managing workflow templates, including predefined workflows and custom user workflows.",
+        "details": "1. Create workflow template controller with the following endpoints:\n   - POST /api/workflows - Create a new workflow template\n   - GET /api/workflows - List workflow templates\n   - GET /api/workflows/:id - Get workflow template details\n   - PUT /api/workflows/:id - Update workflow template\n   - DELETE /api/workflows/:id - Delete workflow template\n   - GET /api/workflows/templates - Get predefined workflow templates\n\n2. Implement workflow template model with Knex:\n```typescript\nclass WorkflowTemplateModel {\n  async create(userId: string, data: WorkflowCreateData): Promise<WorkflowTemplate> {\n    // Create a new workflow template in the database\n  }\n  \n  async findById(id: string): Promise<WorkflowTemplate | null> {\n    // Find a workflow template by ID\n  }\n  \n  async findByUser(userId: string): Promise<WorkflowTemplate[]> {\n    // Find all workflow templates for a user\n  }\n  \n  // Other CRUD methods\n}\n```\n\n3. Create predefined workflow templates:\n   - Canonical 7-agent workflow\n   - MVP 3-agent workflow\n   - UX-focused workflow\n   - Technical specification workflow\n\n4. Implement validation for workflow template data\n5. Add support for workflow visualization data",
+        "testStrategy": "1. Unit test workflow template model methods\n2. Integration test for each API endpoint\n3. Test validation for required fields and data formats\n4. Test predefined template retrieval\n5. Verify that workflow templates can be properly applied to sessions\n6. Test error handling for invalid inputs and edge cases\n7. Test workflow visualization data generation",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4,
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement Document Generation and Export API",
+        "description": "Create API endpoints for generating, updating, and exporting documents based on agent outputs.",
+        "details": "1. Create document controller with the following endpoints:\n   - POST /api/sessions/:id/documents - Generate a document for a session\n   - GET /api/sessions/:id/documents - List documents for a session\n   - GET /api/documents/:id - Get document details\n   - PUT /api/documents/:id - Update document\n   - DELETE /api/documents/:id - Delete document\n   - GET /api/documents/:id/export - Export document in various formats (PDF, Markdown, HTML)\n\n2. Implement document model with Knex:\n```typescript\nclass DocumentModel {\n  async create(sessionId: string, data: DocumentCreateData): Promise<Document> {\n    // Create a new document in the database\n  }\n  \n  async findById(id: string): Promise<Document | null> {\n    // Find a document by ID\n  }\n  \n  async findBySession(sessionId: string): Promise<Document[]> {\n    // Find all documents for a session\n  }\n  \n  // Other CRUD methods\n}\n```\n\n3. Implement document generation service:\n```typescript\nclass DocumentGenerationService {\n  async generateFromSession(sessionId: string, options: GenerationOptions): Promise<Document> {\n    // Retrieve all agent outputs from the session\n    // Organize and format the content according to the template\n    // Create a new document with the formatted content\n  }\n  \n  async exportDocument(documentId: string, format: 'pdf' | 'markdown' | 'html'): Promise<Buffer> {\n    // Retrieve the document\n    // Convert to the requested format\n    // Return as a downloadable buffer\n  }\n}\n```\n\n4. Add support for document templates and customizable structure\n5. Implement versioning for documents",
+        "testStrategy": "1. Unit test document model methods\n2. Unit test document generation service\n3. Integration test for each API endpoint\n4. Test document generation with various session data\n5. Test document export in different formats\n6. Test document versioning\n7. Verify that document templates are correctly applied\n8. Test error handling for invalid inputs and edge cases",
+        "priority": "medium",
+        "dependencies": [
+          3,
+          4,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Create Agent Execution Pipeline",
+        "description": "Implement the core pipeline for sequential execution of agents with quality gates and user approval steps.",
+        "details": "1. Create agent execution service:\n```typescript\nclass AgentExecutionService {\n  async executeAgent(sessionId: string, agentId: string, options: ExecutionOptions): Promise<AgentOutput> {\n    // Retrieve the agent configuration\n    // Build context from previous agent outputs\n    // Generate the prompt\n    // Send to LLM service\n    // Process and store the response\n  }\n  \n  async approvePrompt(sessionId: string, agentId: string, prompt: string): Promise<void> {\n    // Store the approved prompt\n  }\n  \n  async approveResponse(sessionId: string, agentId: string, response: string): Promise<void> {\n    // Store the approved response\n    // Update agent status\n  }\n  \n  async getNextAgent(sessionId: string): Promise<Agent | null> {\n    // Determine the next agent in the workflow\n  }\n}\n```\n\n2. Implement context building functionality:\n```typescript\nclass ContextBuilder {\n  async buildContextForAgent(sessionId: string, agentId: string): Promise<AgentContext> {\n    // Retrieve all previous agent outputs that this agent depends on\n    // Format the context according to the agent's requirements\n  }\n}\n```\n\n3. Create quality gate controller with the following endpoints:\n   - POST /api/sessions/:id/agents/:agentId/execute - Execute an agent\n   - POST /api/sessions/:id/agents/:agentId/approve-prompt - Approve a prompt\n   - POST /api/sessions/:id/agents/:agentId/approve-response - Approve a response\n   - GET /api/sessions/:id/next-agent - Get the next agent in the workflow\n\n4. Implement auto mode for bypassing manual approval steps\n5. Add support for parallel agent execution (optional)",
+        "testStrategy": "1. Unit test agent execution service methods\n2. Unit test context builder\n3. Integration test for each API endpoint\n4. Test the complete agent execution flow with quality gates\n5. Test auto mode execution\n6. Verify that agent dependencies are correctly respected\n7. Test error handling and recovery mechanisms\n8. Test with various agent configurations and workflow templates",
+        "priority": "high",
+        "dependencies": [
+          5,
+          6,
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Implement Comprehensive Logging System",
+        "description": "Create a robust logging system for tracking user actions, system events, and debugging information.",
+        "details": "1. Install logging dependencies:\n```bash\nnpm install winston morgan\n```\n\n2. Create a centralized logging service:\n```typescript\nclass LoggingService {\n  private logger: winston.Logger;\n  \n  constructor() {\n    this.logger = winston.createLogger({\n      level: process.env.LOG_LEVEL || 'info',\n      format: winston.format.combine(\n        winston.format.timestamp(),\n        winston.format.json()\n      ),\n      transports: [\n        new winston.transports.Console(),\n        new winston.transports.File({ filename: 'error.log', level: 'error' }),\n        new winston.transports.File({ filename: 'combined.log' })\n      ]\n    });\n  }\n  \n  info(message: string, meta?: any): void {\n    this.logger.info(message, meta);\n  }\n  \n  error(message: string, error?: Error, meta?: any): void {\n    this.logger.error(message, { error: error?.stack, ...meta });\n  }\n  \n  // Other log levels: debug, warn, etc.\n}\n```\n\n3. Create middleware for HTTP request logging:\n```typescript\nconst requestLogger = morgan('combined', {\n  stream: {\n    write: (message: string) => loggingService.info(message.trim())\n  }\n});\n\napp.use(requestLogger);\n```\n\n4. Implement log viewer API endpoints:\n   - GET /api/logs - Get logs with filtering and pagination\n   - GET /api/logs/download - Download log files\n\n5. Add structured logging for important events:\n   - User authentication\n   - Session creation and updates\n   - Agent execution\n   - Document generation\n   - System errors\n\n6. Implement log rotation and retention policies",
+        "testStrategy": "1. Unit test logging service methods\n2. Test log format and content\n3. Test log rotation and retention\n4. Integration test for log viewer API endpoints\n5. Verify that all important events are properly logged\n6. Test log filtering and pagination\n7. Test log download functionality\n8. Verify that sensitive information is not logged",
+        "priority": "medium",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Create Frontend Authentication Components",
+        "description": "Implement frontend components for user registration, login, and authentication management.",
+        "details": "1. Create authentication context and provider:\n```tsx\ninterface AuthContextType {\n  user: User | null;\n  isAuthenticated: boolean;\n  isLoading: boolean;\n  login: (email: string, password: string) => Promise<void>;\n  register: (userData: RegisterData) => Promise<void>;\n  logout: () => Promise<void>;\n  refreshToken: () => Promise<void>;\n}\n\nconst AuthContext = createContext<AuthContextType | undefined>(undefined);\n\nexport const AuthProvider: React.FC = ({ children }) => {\n  const [user, setUser] = useState<User | null>(null);\n  const [isLoading, setIsLoading] = useState(true);\n  \n  // Implement authentication methods\n  \n  useEffect(() => {\n    // Check for existing auth token and validate it\n  }, []);\n  \n  return (\n    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, register, logout, refreshToken }}>\n      {children}\n    </AuthContext.Provider>\n  );\n};\n```\n\n2. Create authentication service:\n```typescript\nclass AuthService {\n  async login(email: string, password: string): Promise<User> {\n    // Call login API endpoint\n    // Store tokens in secure storage\n    // Return user data\n  }\n  \n  async register(userData: RegisterData): Promise<User> {\n    // Call register API endpoint\n    // Store tokens in secure storage\n    // Return user data\n  }\n  \n  async logout(): Promise<void> {\n    // Call logout API endpoint\n    // Clear tokens from storage\n  }\n  \n  async refreshToken(): Promise<void> {\n    // Call refresh token API endpoint\n    // Update stored tokens\n  }\n  \n  getAuthHeaders(): Record<string, string> {\n    // Return headers with authentication token\n  }\n}\n```\n\n3. Create authentication components:\n   - LoginForm\n   - RegisterForm\n   - PasswordResetForm\n   - ProtectedRoute component for route protection\n\n4. Implement form validation with proper error handling\n5. Add remember me functionality\n6. Implement automatic token refresh",
+        "testStrategy": "1. Unit test authentication service methods\n2. Unit test authentication context provider\n3. Test form validation and error handling\n4. Test protected routes with and without authentication\n5. Test token refresh functionality\n6. Test remember me functionality\n7. Test form submission with valid and invalid data\n8. Verify that authentication state persists across page refreshes",
+        "priority": "high",
+        "dependencies": [
+          1,
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Implement Session Management UI",
+        "description": "Create frontend components for creating, viewing, and managing user sessions.",
+        "details": "1. Create session service for API interactions:\n```typescript\nclass SessionService {\n  async createSession(data: SessionCreateData): Promise<Session> {\n    // Call create session API endpoint\n  }\n  \n  async getSessions(): Promise<Session[]> {\n    // Call get sessions API endpoint\n  }\n  \n  async getSessionById(id: string): Promise<Session> {\n    // Call get session API endpoint\n  }\n  \n  // Other methods for session management\n}\n```\n\n2. Create session list page:\n   - Display all user sessions with filtering and sorting\n   - Show session status and progress\n   - Provide options to create, edit, duplicate, and delete sessions\n\n3. Create session detail page:\n   - Display session information and progress\n   - Show agent execution status\n   - Provide navigation to agent execution and document viewing\n\n4. Create session creation wizard:\n   - Step 1: Basic session information\n   - Step 2: Workflow template selection\n   - Step 3: Agent configuration customization\n   - Step 4: Review and create\n\n5. Implement session context and provider:\n```tsx\ninterface SessionContextType {\n  currentSession: Session | null;\n  isLoading: boolean;\n  loadSession: (id: string) => Promise<void>;\n  updateSession: (data: SessionUpdateData) => Promise<void>;\n  // Other session management methods\n}\n\nconst SessionContext = createContext<SessionContextType | undefined>(undefined);\n\nexport const SessionProvider: React.FC = ({ children }) => {\n  const [currentSession, setCurrentSession] = useState<Session | null>(null);\n  const [isLoading, setIsLoading] = useState(false);\n  \n  // Implement session management methods\n  \n  return (\n    <SessionContext.Provider value={{ currentSession, isLoading, loadSession, updateSession }}>\n      {children}\n    </SessionContext.Provider>\n  );\n};\n```",
+        "testStrategy": "1. Unit test session service methods\n2. Unit test session context provider\n3. Test session list page with various data scenarios\n4. Test session detail page functionality\n5. Test session creation wizard flow\n6. Test filtering and sorting in the session list\n7. Test session duplication functionality\n8. Verify that session updates are reflected in the UI",
+        "priority": "high",
+        "dependencies": [
+          1,
+          6,
+          12
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Implement Agent Configuration UI",
+        "description": "Create frontend components for viewing and configuring AI agents.",
+        "details": "1. Create agent configuration service:\n```typescript\nclass AgentConfigService {\n  async getAgentConfigs(): Promise<AgentConfig[]> {\n    // Call get agent configs API endpoint\n  }\n  \n  async getAgentConfigById(id: string): Promise<AgentConfig> {\n    // Call get agent config API endpoint\n  }\n  \n  async createAgentConfig(data: AgentConfigCreateData): Promise<AgentConfig> {\n    // Call create agent config API endpoint\n  }\n  \n  // Other methods for agent configuration management\n}\n```\n\n2. Create agent configuration list component:\n   - Display all available agent configurations\n   - Provide options to create, edit, and delete configurations\n   - Show agent roles and icons\n\n3. Create agent configuration editor component:\n   - Form for editing agent name, role, and icon\n   - Prompt template editor with variable highlighting\n   - Context source selection (which previous agents' outputs to include)\n\n4. Create agent personality selector component:\n   - Display predefined agent personality types\n   - Show personality descriptions and recommended use cases\n   - Allow customization of selected personality\n\n5. Implement agent icon selection and upload:\n   - Provide a library of predefined icons\n   - Allow custom icon upload\n   - Support icon preview and cropping",
+        "testStrategy": "1. Unit test agent configuration service methods\n2. Test agent configuration list component with various data scenarios\n3. Test agent configuration editor functionality\n4. Test prompt template editor with variable insertion and highlighting\n5. Test agent personality selector\n6. Test icon selection and upload functionality\n7. Verify that agent configuration changes are saved correctly\n8. Test validation for required fields and data formats",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          7,
+          12
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Implement Workflow Template UI",
+        "description": "Create frontend components for viewing, selecting, and customizing workflow templates.",
+        "details": "1. Create workflow template service:\n```typescript\nclass WorkflowTemplateService {\n  async getWorkflowTemplates(): Promise<WorkflowTemplate[]> {\n    // Call get workflow templates API endpoint\n  }\n  \n  async getWorkflowTemplateById(id: string): Promise<WorkflowTemplate> {\n    // Call get workflow template API endpoint\n  }\n  \n  async createWorkflowTemplate(data: WorkflowTemplateCreateData): Promise<WorkflowTemplate> {\n    // Call create workflow template API endpoint\n  }\n  \n  // Other methods for workflow template management\n}\n```\n\n2. Create workflow template list component:\n   - Display all available workflow templates\n   - Show template descriptions and agent counts\n   - Provide options to select, customize, and create templates\n\n3. Create workflow template viewer component:\n   - Visual representation of the workflow (e.g., flowchart)\n   - Display agents in the workflow with their roles and dependencies\n   - Show information about each agent on hover/select\n\n4. Create workflow template editor component:\n   - Interface for adding, removing, and reordering agents\n   - Agent dependency configuration\n   - Workflow metadata editing (name, description)\n\n5. Implement workflow template recommendation system:\n   - Suggest appropriate templates based on user goals\n   - Provide guidance on template selection\n   - Show template comparison",
+        "testStrategy": "1. Unit test workflow template service methods\n2. Test workflow template list component with various data scenarios\n3. Test workflow template viewer functionality\n4. Test workflow template editor for creating and modifying workflows\n5. Test agent dependency configuration\n6. Test workflow visualization with different workflow structures\n7. Verify that workflow template changes are saved correctly\n8. Test template recommendation system",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          8,
+          12,
+          14
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Implement Agent Execution UI",
+        "description": "Create frontend components for executing agents, reviewing prompts, and approving responses.",
+        "details": "1. Create agent execution service:\n```typescript\nclass AgentExecutionService {\n  async executeAgent(sessionId: string, agentId: string): Promise<AgentExecution> {\n    // Call execute agent API endpoint\n  }\n  \n  async approvePrompt(sessionId: string, agentId: string, prompt: string): Promise<void> {\n    // Call approve prompt API endpoint\n  }\n  \n  async approveResponse(sessionId: string, agentId: string, response: string): Promise<void> {\n    // Call approve response API endpoint\n  }\n  \n  async getNextAgent(sessionId: string): Promise<Agent | null> {\n    // Call get next agent API endpoint\n  }\n}\n```\n\n2. Create agent execution page:\n   - Display current agent information and role\n   - Show context from previous agents\n   - Display generated prompt for review and editing\n   - Show agent response for review and editing\n   - Provide approval buttons for prompt and response\n\n3. Create prompt editor component:\n   - Rich text editor for prompt editing\n   - Syntax highlighting for template variables\n   - Preview functionality\n\n4. Create response viewer/editor component:\n   - Rich text editor for response editing\n   - Formatting controls\n   - Preview functionality\n\n5. Implement progress tracker component:\n   - Visual representation of workflow progress\n   - Highlight current agent\n   - Show completed and pending agents\n   - Provide navigation between agents",
+        "testStrategy": "1. Unit test agent execution service methods\n2. Test agent execution page with various agent types\n3. Test prompt editor functionality\n4. Test response viewer/editor functionality\n5. Test approval flow for prompts and responses\n6. Test progress tracker with different workflow states\n7. Verify that agent execution state is correctly maintained\n8. Test auto mode execution",
+        "priority": "high",
+        "dependencies": [
+          1,
+          10,
+          12,
+          13,
+          14
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Implement Document Viewer and Export UI",
+        "description": "Create frontend components for viewing, editing, and exporting generated documents.",
+        "details": "1. Create document service:\n```typescript\nclass DocumentService {\n  async getDocuments(sessionId: string): Promise<Document[]> {\n    // Call get documents API endpoint\n  }\n  \n  async getDocumentById(id: string): Promise<Document> {\n    // Call get document API endpoint\n  }\n  \n  async generateDocument(sessionId: string, options: GenerationOptions): Promise<Document> {\n    // Call generate document API endpoint\n  }\n  \n  async exportDocument(id: string, format: 'pdf' | 'markdown' | 'html'): Promise<Blob> {\n    // Call export document API endpoint\n    // Convert response to Blob for download\n  }\n}\n```\n\n2. Create document viewer component:\n   - Display document content with proper formatting\n   - Support for different document sections\n   - Table of contents navigation\n\n3. Create document editor component:\n   - Rich text editor for document editing\n   - Section management (add, remove, reorder)\n   - Document metadata editing\n\n4. Create document export component:\n   - Format selection (PDF, Markdown, HTML)\n   - Export options (include table of contents, cover page, etc.)\n   - Download functionality\n\n5. Implement document version management:\n   - Version list and comparison\n   - Version restoration\n   - Version notes",
+        "testStrategy": "1. Unit test document service methods\n2. Test document viewer with various document types and content\n3. Test document editor functionality\n4. Test document export in different formats\n5. Test document version management\n6. Verify that document changes are saved correctly\n7. Test document navigation and table of contents\n8. Test download functionality",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          9,
+          12,
+          13
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Implement Logging and Debugging UI",
+        "description": "Create frontend components for viewing logs, debugging sessions, and monitoring system status.",
+        "details": "1. Create logging service:\n```typescript\nclass LoggingService {\n  async getLogs(filters: LogFilters): Promise<LogEntry[]> {\n    // Call get logs API endpoint\n  }\n  \n  async downloadLogs(filters: LogFilters): Promise<Blob> {\n    // Call download logs API endpoint\n    // Convert response to Blob for download\n  }\n}\n```\n\n2. Create log viewer component:\n   - Display logs with filtering and search\n   - Show log levels with appropriate styling\n   - Support for log expansion and collapsing\n   - Pagination and infinite scrolling\n\n3. Create session debug view:\n   - Display detailed session execution information\n   - Show agent execution history\n   - Display raw prompts and responses\n   - Show timing and performance metrics\n\n4. Create system status dashboard:\n   - Display API status and response times\n   - Show LLM service status\n   - Display error rates and common issues\n   - Show active sessions and users\n\n5. Implement error reporting and feedback mechanism:\n   - Error reporting form\n   - Screenshot and context capture\n   - User feedback collection",
+        "testStrategy": "1. Unit test logging service methods\n2. Test log viewer with various log data\n3. Test filtering and search functionality\n4. Test session debug view with different session states\n5. Test system status dashboard\n6. Test error reporting and feedback mechanism\n7. Verify that logs are displayed correctly with appropriate formatting\n8. Test log download functionality",
+        "priority": "low",
+        "dependencies": [
+          1,
+          11,
+          12
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 19,
+        "title": "Implement Responsive Design and Mobile Compatibility",
+        "description": "Ensure the application is fully responsive and works well on mobile devices.",
+        "details": "1. Implement responsive layout using Tailwind CSS:\n```html\n<div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4\">\n  <!-- Responsive grid content -->\n</div>\n```\n\n2. Create mobile-friendly navigation:\n   - Implement hamburger menu for small screens\n   - Create touch-friendly UI elements\n   - Optimize form inputs for mobile devices\n\n3. Implement responsive tables:\n   - Horizontal scrolling for tables on small screens\n   - Collapsible table rows\n   - Card view for mobile devices\n\n4. Optimize images and assets for mobile:\n   - Implement responsive images\n   - Reduce asset sizes for mobile\n   - Use appropriate image formats (WebP, SVG)\n\n5. Test and fix touch interactions:\n   - Ensure appropriate touch target sizes\n   - Implement swipe gestures where appropriate\n   - Fix hover states on touch devices\n\n6. Implement progressive enhancement:\n   - Ensure core functionality works without JavaScript\n   - Provide fallbacks for advanced features\n   - Optimize for low-bandwidth connections",
+        "testStrategy": "1. Test the application on various devices (phones, tablets, desktops)\n2. Test with different screen sizes and orientations\n3. Verify that all functionality works correctly on mobile devices\n4. Test touch interactions and gestures\n5. Verify that the UI is usable and accessible on small screens\n6. Test performance on mobile devices\n7. Verify that forms and inputs work correctly on touch devices\n8. Test with different browsers on mobile devices",
+        "priority": "medium",
+        "dependencies": [
+          1,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 20,
+        "title": "Implement Accessibility Compliance",
+        "description": "Ensure the application meets WCAG 2.1 AA compliance standards for accessibility.",
+        "details": "1. Install accessibility testing tools:\n```bash\nnpm install -D axe-core react-axe\n```\n\n2. Implement semantic HTML structure:\n   - Use appropriate heading levels (h1-h6)\n   - Use semantic elements (nav, main, section, article, etc.)\n   - Implement proper landmark regions\n\n3. Ensure keyboard accessibility:\n   - Make all interactive elements keyboard accessible\n   - Implement focus management\n   - Add skip links for keyboard navigation\n   - Ensure visible focus indicators\n\n4. Implement ARIA attributes where necessary:\n   - Add aria-label for elements without visible text\n   - Use aria-expanded for expandable elements\n   - Implement aria-live regions for dynamic content\n   - Add appropriate roles for custom components\n\n5. Ensure proper color contrast:\n   - Verify text contrast meets WCAG AA standards (4.5:1 for normal text, 3:1 for large text)\n   - Don't rely solely on color to convey information\n   - Implement high contrast mode support\n\n6. Add text alternatives for non-text content:\n   - Add alt text for images\n   - Provide transcripts for audio content\n   - Add captions for video content\n\n7. Make forms accessible:\n   - Associate labels with form controls\n   - Provide clear error messages\n   - Group related form elements with fieldset and legend\n   - Ensure form validation is accessible",
+        "testStrategy": "1. Use automated testing tools (axe-core, Lighthouse) to identify accessibility issues\n2. Test with screen readers (NVDA, VoiceOver, JAWS)\n3. Test keyboard navigation throughout the application\n4. Verify color contrast with contrast checkers\n5. Test with browser accessibility tools (Chrome DevTools, Firefox Accessibility Inspector)\n6. Conduct manual testing with accessibility checklist\n7. Test with users who have disabilities if possible\n8. Verify that all WCAG 2.1 AA success criteria are met",
+        "priority": "high",
+        "dependencies": [
+          1,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-01T15:21:09.156Z",
+      "updated": "2025-07-01T15:25:13.207Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

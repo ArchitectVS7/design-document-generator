@@ -3,7 +3,6 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import apiClient, { 
-  ApiResponse, 
   ConfigurationData, 
   SessionData, 
   HistoryEntry 

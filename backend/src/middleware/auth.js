@@ -2,6 +2,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import databaseConfig from '../config/database.js';
+import crypto from "crypto";
 
 class AuthMiddleware {
   constructor() {
@@ -218,13 +219,11 @@ class AuthMiddleware {
 
   // Generate API key
   generateApiKey() {
-    const crypto = require('crypto');
     return crypto.randomBytes(32).toString('hex');
   }
 
   // Hash API key for storage
   hashApiKey(apiKey) {
-    const crypto = require('crypto');
     return crypto.createHash('sha256').update(apiKey).digest('hex');
   }
 
