@@ -251,6 +251,8 @@ export const useConversation = (
     completeSubStep(agentId, 'promptDraftComplete');
     enableSubStep(agentId, 'promptOkEnabled');
     updateAgentState(agentId, 'Active.Prompt_OK', { promptApproved: true });
+    
+    logger.info('useConversation', 'approvePrompt', `Prompt approved for agent ${agentId}`);
   }, [updateAgentState, completeSubStep, enableSubStep]);
 
   // Start a new conversation
@@ -346,8 +348,7 @@ export const useConversation = (
 
     // Check if agent step is complete
     if (currentStepState?.complete) {
-      logger.info('useConversation', 'processCurrentAgent', 'Agent step already complete, moving to next agent');
-      proceedToNextAgent();
+      logger.info('useConversation', 'processCurrentAgent', 'Agent step already complete, not proceeding automatically');
       processingRef.current = false;
       return;
     }
@@ -399,6 +400,11 @@ export const useConversation = (
         const promptRequest = PromptBuilder.buildPrompt(currentAgent, promptContext);
         logger.debug('useConversation', 'processCurrentAgent', 'Built prompt request', promptRequest);
 
+        // Store the prompt in agent state
+        updateAgentState(currentAgent.id, 'Active.Prompt_Draft', {
+          currentPrompt: promptRequest.prompt
+        });
+
         // Store the prompt for review
         setState(prev => ({
           ...prev,
@@ -424,12 +430,18 @@ export const useConversation = (
 
       // Step 2: Prompt OK (auto-approve in auto mode)
       if (!currentStepState?.promptOkComplete && currentStepState?.promptDraftComplete) {
-        logger.info('useConversation', 'processCurrentAgent', 'Auto-approving prompt in auto mode');
-        
-        if (!currentStepState?.promptOkEnabled) {
-          enableSubStep(currentAgent.id, 'promptOkEnabled');
+        if (conversationOptions.mode === 'auto') {
+          logger.info('useConversation', 'processCurrentAgent', 'Auto-approving prompt in auto mode');
+          
+          if (!currentStepState?.promptOkEnabled) {
+            enableSubStep(currentAgent.id, 'promptOkEnabled');
+          }
+          completeSubStep(currentAgent.id, 'promptOkComplete');
+        } else {
+          logger.info('useConversation', 'processCurrentAgent', 'Manual mode - waiting for prompt approval');
+          processingRef.current = false;
+          return;
         }
-        completeSubStep(currentAgent.id, 'promptOkComplete');
       }
 
       // Step 3: Generating
@@ -448,6 +460,12 @@ export const useConversation = (
           outputFormat: currentAgent.task.outputFormat
         };
 
+        logger.info('useConversation', 'processCurrentAgent', 'Sending prompt to LLM', {
+          promptLength: promptRequest.prompt.length,
+          maxTokens: promptRequest.maxTokens,
+          temperature: promptRequest.temperature
+        });
+
         const response = await Promise.race([
           llmProvider.complete(promptRequest),
           new Promise((_, reject) => 
@@ -457,6 +475,11 @@ export const useConversation = (
 
         logger.info('useConversation', 'processCurrentAgent', 'LLM response received', { responseLength: response.content.length });
         
+        // Store the response in agent state
+        updateAgentState(currentAgent.id, 'Active.Response_Draft', {
+          currentResponse: response.content
+        });
+
         // Store the response for review
         setState(prev => ({
           ...prev,
@@ -482,49 +505,61 @@ export const useConversation = (
 
       // Step 4: Response OK (auto-approve in auto mode)
       if (!currentStepState?.responseOkComplete && currentStepState?.generatingComplete) {
-        logger.info('useConversation', 'processCurrentAgent', 'Auto-approving response in auto mode');
-        
-        if (!currentStepState?.responseOkEnabled) {
-          enableSubStep(currentAgent.id, 'responseOkEnabled');
+        if (conversationOptions.mode === 'auto') {
+          logger.info('useConversation', 'processCurrentAgent', 'Auto-approving response in auto mode');
+          
+          if (!currentStepState?.responseOkEnabled) {
+            enableSubStep(currentAgent.id, 'responseOkEnabled');
+          }
+          completeSubStep(currentAgent.id, 'responseOkComplete');
+        } else {
+          logger.info('useConversation', 'processCurrentAgent', 'Manual mode - waiting for response approval');
+          processingRef.current = false;
+          return;
         }
-        completeSubStep(currentAgent.id, 'responseOkComplete');
       }
 
-      // Step 5: Complete
+      // Step 5: Complete (only in auto mode)
       if (!currentStepState?.complete && currentStepState?.responseOkComplete) {
-        logger.info('useConversation', 'processCurrentAgent', 'Completing agent step');
-        
-        // Add to conversation history
-        const currentAgentState = state.agentStates[currentAgent.id];
-        const historyEntry = {
-          agentId: state.currentAgentId,
-          agentName: currentAgent.name,
-          prompt: currentAgentState?.currentPrompt || '',
-          response: currentAgentState?.currentResponse || '',
-          timestamp: new Date().toISOString(),
-          status: 'completed' as const
-        };
+        if (conversationOptions.mode === 'auto') {
+          logger.info('useConversation', 'processCurrentAgent', 'Completing agent step in auto mode');
+          
+          // Add to conversation history
+          const currentAgentState = state.agentStates[currentAgent.id];
+          const historyEntry = {
+            agentId: state.currentAgentId,
+            agentName: currentAgent.name,
+            prompt: currentAgentState?.currentPrompt || '',
+            response: currentAgentState?.currentResponse || '',
+            timestamp: new Date().toISOString(),
+            status: 'completed' as const
+          };
 
-        setState(prev => ({
-          ...prev,
-          conversationHistory: [...prev.conversationHistory, historyEntry]
-        }));
-
-        // Update agent state to Completed
-        updateAgentState(currentAgent.id, 'Complete');
-
-        // Mark step as complete
-        if (state.currentAgentId !== null) {
-          setAgentStepStates(prev => ({
+          setState(prev => ({
             ...prev,
-            [state.currentAgentId as number]: {
-              ...prev[state.currentAgentId as number],
-              complete: true
-            }
+            conversationHistory: [...prev.conversationHistory, historyEntry]
           }));
-        }
 
-        logger.info('useConversation', 'processCurrentAgent', 'Agent step completed successfully');
+          // Update agent state to Completed
+          updateAgentState(currentAgent.id, 'Complete');
+
+          // Mark step as complete
+          if (state.currentAgentId !== null) {
+            setAgentStepStates(prev => ({
+              ...prev,
+              [state.currentAgentId as number]: {
+                ...prev[state.currentAgentId as number],
+                complete: true
+              }
+            }));
+          }
+
+          logger.info('useConversation', 'processCurrentAgent', 'Agent step completed successfully in auto mode');
+        } else {
+          logger.info('useConversation', 'processCurrentAgent', 'Manual mode - agent step ready for completion');
+          processingRef.current = false;
+          return;
+        }
       }
 
     } catch (error) {
@@ -654,6 +689,42 @@ export const useConversation = (
     }
   }, [agentStepStates, state.isActive, state.currentAgentId, state.status]);
 
+  // Effect to handle prompt approval in manual mode
+  useEffect(() => {
+    if (state.isActive && state.currentAgentId && state.status === 'running' && conversationOptions.mode === 'manual') {
+      const currentStepState = agentStepStates[state.currentAgentId];
+      
+      // If prompt is approved and we're in manual mode, continue processing
+      if (currentStepState?.promptOkComplete && !currentStepState?.generatingComplete && !processingRef.current) {
+        logger.info('useConversation', 'useEffect', 'Prompt approved in manual mode, continuing to generation');
+        processCurrentAgent();
+      }
+    }
+  }, [agentStepStates, state.isActive, state.currentAgentId, state.status, conversationOptions.mode]);
+
+  // Effect to handle response approval in manual mode
+  useEffect(() => {
+    if (state.isActive && state.currentAgentId && state.status === 'running' && conversationOptions.mode === 'manual') {
+      const currentStepState = agentStepStates[state.currentAgentId];
+      
+      // If response is approved and we're in manual mode, complete the agent
+      if (currentStepState?.responseOkComplete && !currentStepState?.complete && !processingRef.current) {
+        logger.info('useConversation', 'useEffect', 'Response approved in manual mode, completing agent');
+        
+        // Complete the agent step
+        if (state.currentAgentId !== null) {
+          setAgentStepStates(prev => ({
+            ...prev,
+            [state.currentAgentId as number]: {
+              ...prev[state.currentAgentId as number],
+              complete: true
+            }
+          }));
+        }
+      }
+    }
+  }, [agentStepStates, state.isActive, state.currentAgentId, state.status, conversationOptions.mode]);
+
   // Effect to handle agent completion and transition to next agent
   useEffect(() => {
     if (state.isActive && state.currentAgentId && state.status === 'running') {
@@ -673,6 +744,7 @@ export const useConversation = (
           proceedToNextAgent();
         } else {
           logger.info('useConversation', 'useEffect', 'Manual mode - waiting for user to proceed');
+          // In manual mode, don't automatically proceed - wait for user action
         }
       }
     }
