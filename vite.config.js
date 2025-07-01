@@ -5,6 +5,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: '/design-document-generator/',
+  server: {
+    port: 5173,
+    strictPort: true,
+    host: true
+  },
   build: {
     outDir: 'dist',
     sourcemap: true

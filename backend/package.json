@@ -13,7 +13,7 @@
     "seed": "node src/database/seed.js"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.38.4",
+    "@supabase/supabase-js": "^2.50.2",
     "bcryptjs": "^2.4.3",
     "compression": "^1.7.4",
     "connect-pg-simple": "^8.0.0",
