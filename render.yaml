@@ -2,7 +2,6 @@ services:
   - type: web
     name: backend
     env: node
-    plan: free
     buildCommand: cd backend && npm install
     startCommand: cd backend && npm start
     envVars:
@@ -17,7 +16,6 @@ services:
   - type: web
     name: frontend
     env: static
-    plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     envVars:
