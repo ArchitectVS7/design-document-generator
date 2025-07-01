@@ -72,6 +72,9 @@ export interface MigrationResult {
   warnings: string[];
   requiresUserApproval: boolean;
   pendingChanges: FieldMapping[];
+  tagMappings?: Record<string, string>;
+  deprecatedFields?: string[];
+  newFields?: string[];
 }
 
 export interface MigrationDialogData {
@@ -79,6 +82,9 @@ export interface MigrationDialogData {
   migratedConfig: ConfigurationFile;
   warnings: string[];
   pendingChanges: FieldMapping[];
+  tagMappings: Record<string, string>;
+  deprecatedFields: string[];
+  newFields: string[];
 }
 
 // Version Control Types

@@ -1,17 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AgentConfiguration, RoleCategory } from '../types/agent';
+import AgentEditor from './AgentEditor';
 
 interface AgentListProps {
   agents: AgentConfiguration[];
   onAgentSelect?: (agent: AgentConfiguration) => void;
   selectedAgentId?: number;
+  onAgentUpdate?: (updatedAgent: AgentConfiguration) => void;
 }
 
 const AgentList: React.FC<AgentListProps> = ({ 
   agents, 
   onAgentSelect, 
-  selectedAgentId 
+  selectedAgentId,
+  onAgentUpdate
 }) => {
+  const [editingAgent, setEditingAgent] = useState<AgentConfiguration | null>(null);
+
   const getCategoryColor = (category: RoleCategory): string => {
     switch (category) {
       case RoleCategory.STRATEGIST:
@@ -57,6 +62,20 @@ const AgentList: React.FC<AgentListProps> = ({
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleEditAgent = (agent: AgentConfiguration, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setEditingAgent(agent);
+  };
+
+  const handleSaveAgent = (updatedAgent: AgentConfiguration) => {
+    onAgentUpdate?.(updatedAgent);
+    setEditingAgent(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingAgent(null);
   };
 
   return (
@@ -110,6 +129,12 @@ const AgentList: React.FC<AgentListProps> = ({
                 <div className="text-xs text-gray-400">
                   ID: {agent.id}
                 </div>
+                <button
+                  onClick={(e) => handleEditAgent(agent, e)}
+                  className="text-primary-600 hover:text-primary-700 text-sm font-medium"
+                >
+                  Edit
+                </button>
                 {agent.contextSources.some(s => s.selected) && (
                   <div className="flex gap-1">
                     {agent.contextSources
@@ -154,6 +179,17 @@ const AgentList: React.FC<AgentListProps> = ({
           <h3 className="text-lg font-medium text-gray-900 mb-2">No Agents Configured</h3>
           <p className="text-gray-600">Start by adding your first AI agent to the configuration.</p>
         </div>
+      )}
+
+      {/* Agent Editor Modal */}
+      {editingAgent && (
+        <AgentEditor
+          agent={editingAgent}
+          allAgents={agents}
+          onSave={handleSaveAgent}
+          onCancel={handleCancelEdit}
+          isOpen={true}
+        />
       )}
     </div>
   );

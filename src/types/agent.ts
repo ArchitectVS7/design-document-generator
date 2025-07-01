@@ -65,6 +65,25 @@ export enum OutputFormat {
   TEXT = "text"
 }
 
+// Agent State Management
+export type AgentState = 
+  | "Idle" 
+  | "Active.Prompt_Draft" 
+  | "Active.Prompt_OK" 
+  | "Active.Generating" 
+  | "Active.Response_Draft" 
+  | "Active.Response_OK" 
+  | "Complete";
+
+export interface AgentStateInfo {
+  state: AgentState;
+  currentPrompt?: string;
+  currentResponse?: string;
+  promptApproved?: boolean;
+  responseApproved?: boolean;
+  lastUpdated: string;
+}
+
 // Runtime Agent State
 export interface AgentStatus {
   isActive: boolean;
@@ -73,6 +92,7 @@ export interface AgentStatus {
   executionCount: number;
   errorCount: number;
   lastError?: string;
+  state: AgentStateInfo;
 }
 
 export interface AgentResponse {
