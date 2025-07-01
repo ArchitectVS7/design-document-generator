@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: backend
+    name: design-doc-backend
     env: node
     buildCommand: cd backend && npm install
     startCommand: cd backend && npm start
@@ -11,21 +11,22 @@ services:
           property: connectionString
       - key: PORT
         value: 10000
-      # Add other backend environment variables here
+      - key: SESSION_SECRET
+        value: v6rZc+z2bNfI3m+9xSdo3twlQROZQAcYiQG66KjAfmE=
+      - key: JWT_SECRET
+        value: v6rZc+z2bNfI3m+9xSdo3twlQROZQAcYiQG66KjAfmE=
 
   - type: web
-    name: frontend
+    name: design-doc-frontend
     env: static
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
-        value: https://backend-<your-app-slug>.onrender.com
-      # Add other frontend environment variables here
+        value: https://backend-sw3t.onrender.com
 
 databases:
   - name: design-doc-db
     plan: free
     databaseName: design_doc_db
     user: design_doc_user
-    # Render will auto-generate password and connection string 

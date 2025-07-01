@@ -58,7 +58,8 @@ class ApiClient {
   private apiKey: string | null = null;
 
   constructor() {
-    this.baseUrl = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3001';
+    // Use VITE_API_URL for Render deployment, fallback to localhost for local dev
+    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
     this.loadApiKey();
   }
 
