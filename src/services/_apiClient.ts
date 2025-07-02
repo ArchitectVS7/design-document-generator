@@ -1,4 +1,4 @@
-// API Client Service v0.7.1 - Optimized for Render Deployment
+// API Client Service v0.7.0
 // Handles communication with the backend API
 
 export interface ApiResponse<T = any> {
@@ -56,38 +56,11 @@ export interface HistoryEntry {
 class ApiClient {
   private baseUrl: string;
   private apiKey: string | null = null;
-  private requestIdCounter = 0;
 
   constructor() {
-    // Dynamic base URL configuration
-    this.baseUrl = this.getBaseUrl();
+    // Use VITE_API_URL for Render deployment, fallback to localhost for local dev
+    this.baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
     this.loadApiKey();
-    
-    // Log the API URL in development
-    if (import.meta.env.DEV) {
-      console.log('API Client initialized with base URL:', this.baseUrl);
-    }
-  }
-
-  // Determine the base URL based on environment
-  private getBaseUrl(): string {
-    // If VITE_API_URL is set, use it
-    if (import.meta.env.VITE_API_URL) {
-      return import.meta.env.VITE_API_URL;
-    }
-    
-    // In production on Render, use relative URL (same origin)
-    if (import.meta.env.PROD) {
-      // This assumes frontend and backend are on different services
-      // Backend URL will be injected via environment variable during build
-      return window.location.origin.replace(
-        'design-doc-generator-frontend',
-        'design-doc-generator-api'
-      );
-    }
-    
-    // Default to localhost for development
-    return 'http://localhost:3001';
   }
 
   // Load API key from localStorage
@@ -112,25 +85,15 @@ class ApiClient {
     return this.apiKey;
   }
 
-  // Generate request ID for tracking
-  private generateRequestId(): string {
-    this.requestIdCounter++;
-    return `${Date.now()}-${this.requestIdCounter}`;
-  }
-
-  // Make HTTP request with enhanced error handling
+  // Make HTTP request
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
-    const requestId = this.generateRequestId();
-    const startTime = Date.now();
-    
     try {
       const url = `${this.baseUrl}${endpoint}`;
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
-        'X-Request-ID': requestId,
         ...options.headers,
       };
 
@@ -139,65 +102,23 @@ class ApiClient {
         (headers as any)['x-api-key'] = this.apiKey;
       }
 
-      // Log request in development
-      if (import.meta.env.DEV) {
-        console.log(`[${requestId}] API Request:`, {
-          method: options.method || 'GET',
-          url,
-          headers: { ...headers, 'x-api-key': '***' }, // Hide API key
-        });
-      }
-
       const response = await fetch(url, {
         ...options,
         headers,
-        credentials: 'include', // Include cookies for session management
       });
 
-      const duration = Date.now() - startTime;
       const data = await response.json();
 
-      // Log response in development
-      if (import.meta.env.DEV) {
-        console.log(`[${requestId}] API Response:`, {
-          status: response.status,
-          duration: `${duration}ms`,
-          success: data.success,
-        });
-      }
-
       if (!response.ok) {
-        // Handle specific error cases
-        if (response.status === 401) {
-          // Unauthorized - clear API key
-          this.clearApiKey();
-        }
-        
-        throw new Error(
-          data.error || data.message || `HTTP ${response.status} - ${response.statusText}`
-        );
+        throw new Error(data.error || data.message || `HTTP ${response.status}`);
       }
 
       return data;
     } catch (error) {
-      const duration = Date.now() - startTime;
-      
-      // Enhanced error logging
-      console.error(`[${requestId}] API request failed after ${duration}ms:`, error);
-      
-      // Check for network errors
-      if (error instanceof TypeError && error.message === 'Failed to fetch') {
-        return {
-          success: false,
-          error: 'Network error - Unable to connect to server',
-          message: 'Please check your internet connection and try again',
-        };
-      }
-      
+      console.error('API request failed:', error);
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        message: 'An unexpected error occurred. Please try again.',
       };
     }
   }
@@ -388,54 +309,18 @@ class ApiClient {
     });
   }
 
-  // Health check with retry
+  // Health check
   public async healthCheck(): Promise<ApiResponse<any>> {
-    const maxRetries = 3;
-    let lastError: any;
-    
-    for (let i = 0; i < maxRetries; i++) {
-      try {
-        const response = await this.request<any>('/health');
-        if (response.success) {
-          return response;
-        }
-        lastError = response.error;
-      } catch (error) {
-        lastError = error;
-      }
-      
-      // Wait before retry (exponential backoff)
-      if (i < maxRetries - 1) {
-        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
-      }
-    }
-    
-    return {
-      success: false,
-      error: lastError || 'Health check failed after multiple attempts',
-    };
+    return this.request<any>('/health');
   }
 
   // API status
   public async getApiStatus(): Promise<ApiResponse<any>> {
     return this.request<any>('/api/status');
   }
-
-  // Update base URL (useful for environment switching)
-  public updateBaseUrl(newUrl: string): void {
-    this.baseUrl = newUrl;
-    if (import.meta.env.DEV) {
-      console.log('API Client base URL updated to:', this.baseUrl);
-    }
-  }
 }
 
 // Create singleton instance
 const apiClient = new ApiClient();
-
-// Export for debugging in development
-if (import.meta.env.DEV) {
-  (window as any).apiClient = apiClient;
-}
 
 export default apiClient; 
