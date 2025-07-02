@@ -65,7 +65,7 @@ class UserService {
         }
         
         // Remove password hash from response
-        const { password_hash: _password_hash, ...userWithoutPassword } = user;
+        const { password_hash: _password_hash, ...userWithoutPassword } = user; // eslint-disable-line @typescript-eslint/no-unused-vars
         return userWithoutPassword;
       } else {
         // Supabase implementation would go here

@@ -1,4 +1,5 @@
 // Session Routes v0.7.0
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import express from 'express';
 import Joi from 'joi';
 import authMiddleware from '../middleware/auth.js';

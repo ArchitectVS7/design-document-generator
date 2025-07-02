@@ -5,8 +5,8 @@ import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
+// import path from 'path'; // Reserved for future use
+// import { fileURLToPath } from 'url'; // Reserved for future use
 
 // Import configurations and services
 import databaseConfig from './config/database.js';
@@ -23,7 +23,7 @@ import authMiddleware from './middleware/auth.js';
 // Load environment variables
 dotenv.config();
 
-const __filename = fileURLToPath(import.meta.url);
+// const __filename = fileURLToPath(import.meta.url); // Reserved for future use
 // const __dirname = path.dirname(__filename); // Reserved for future use
 
 class Server {
@@ -193,7 +193,7 @@ class Server {
   // Error handling middleware
   configureErrorHandling() {
     // Global error handler
-    this.app.use((error, req, res, _next) => {
+    this.app.use((error, req, res, _next) => { // eslint-disable-line @typescript-eslint/no-unused-vars
       console.error('Unhandled error:', error);
 
       // Don't leak error details in production
