@@ -15,7 +15,6 @@ services:
     name: design-doc-generator-api
     runtime: node
     plan: free # Upgrade to 'starter' or higher for production
-    region: oregon # Should match database region
     buildCommand: "cd backend && npm install"
     startCommand: "cd backend && npm start"
     healthCheckPath: /health
