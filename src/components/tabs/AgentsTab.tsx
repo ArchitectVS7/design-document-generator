@@ -27,7 +27,7 @@ const AgentsTab: React.FC<AgentsTabProps> = ({
       {selectedAgentId && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-blue-800">
-            Agent {selectedAgentId} selected. Click "Edit" on any agent to modify its configuration.
+            Agent {selectedAgentId} selected. Click &quot;Edit&quot; on any agent to modify its configuration.
           </p>
         </div>
       )}

@@ -248,8 +248,8 @@ export const useConfigurationFile = (): UseConfigurationFileReturn => {
       // Clear migration dialog
       setMigrationDialog(null);
       
-      // Return the migrated configuration (this would typically be handled by the parent component)
-      console.log('Migration approved and applied');
+      // Log migration completion with final configuration details
+      console.log('Migration approved and applied for configuration:', finalConfig.header.version);
       
       // The parent component should handle applying this configuration
       // We don't automatically apply it here to avoid conflicts

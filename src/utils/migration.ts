@@ -133,7 +133,7 @@ export class MigrationSystem {
     migrationPath: string[]
   ): MigrationResult {
     try {
-      let newConfig = { ...oldConfig };
+      const newConfig = { ...oldConfig };
       const warnings: string[] = [];
       const pendingChanges: FieldMapping[] = [];
       const tagMappings: Record<string, string> = {};

@@ -164,7 +164,7 @@ const AgentEditor: React.FC<AgentEditorProps> = ({
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  A brief description such as "Intake Agent" or "Market Researcher"
+                  A brief description such as &quot;Intake Agent&quot; or &quot;Market Researcher&quot;
                 </p>
               </div>
 
@@ -184,7 +184,7 @@ const AgentEditor: React.FC<AgentEditorProps> = ({
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  A more descriptive term of the Agent's job which will provide instructions to an LLM prompt
+                  A more descriptive term of the Agent&apos;s job which will provide instructions to an LLM prompt
                 </p>
               </div>
 
