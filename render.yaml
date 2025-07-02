@@ -6,7 +6,6 @@ databases:
     plan: free # Upgrade to 'starter' or higher for production
     databaseName: design_doc_generator
     user: design_doc_user
-    region: oregon # Change to your preferred region
     postgresMajorVersion: 15
 
 services:
