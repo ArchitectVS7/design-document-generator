@@ -2,7 +2,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import databaseConfig from '../config/database.js';
-import crypto from "crypto";
+import crypto from 'crypto';
 
 class AuthMiddleware {
   constructor() {

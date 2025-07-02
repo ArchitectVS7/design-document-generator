@@ -1,12 +1,12 @@
-// Configuration Service v0.7.0
-// All Supabase-related code and comments removed. Only PostgreSQL logic remains.
-import { v4 as uuidv4 } from 'uuid';
+// Configuration Service v0.7.1
+// Uses PostgreSQL database proxy for all operations
+import databaseProxy from './databaseProxy.js';
 
 class ConfigurationService {
   // Create a new configuration
   async createConfiguration(userId, configData) {
     try {
-      return await supabaseProxy.createConfiguration(userId, configData);
+      return await databaseProxy.createConfiguration(userId, configData);
     } catch (error) {
       console.error('Configuration creation failed:', error);
       throw error;
@@ -16,7 +16,7 @@ class ConfigurationService {
   // Get configuration by ID
   async getConfigurationById(configId, userId) {
     try {
-      return await supabaseProxy.getConfigurationById(configId, userId);
+      return await databaseProxy.getConfigurationById(configId, userId);
     } catch (error) {
       console.error('Configuration retrieval failed:', error);
       throw error;
@@ -26,7 +26,7 @@ class ConfigurationService {
   // Get all configurations for a user
   async getUserConfigurations(userId, includePublic = false) {
     try {
-      return await supabaseProxy.getUserConfigurations(userId, includePublic);
+      return await databaseProxy.getUserConfigurations(userId, includePublic);
     } catch (error) {
       console.error('User configurations retrieval failed:', error);
       throw error;
@@ -36,7 +36,7 @@ class ConfigurationService {
   // Update configuration
   async updateConfiguration(configId, userId, updateData) {
     try {
-      return await supabaseProxy.updateConfiguration(configId, userId, updateData);
+      return await databaseProxy.updateConfiguration(configId, userId, updateData);
     } catch (error) {
       console.error('Configuration update failed:', error);
       throw error;
@@ -46,7 +46,7 @@ class ConfigurationService {
   // Delete configuration
   async deleteConfiguration(configId, userId) {
     try {
-      return await supabaseProxy.deleteConfiguration(configId, userId);
+      return await databaseProxy.deleteConfiguration(configId, userId);
     } catch (error) {
       console.error('Configuration deletion failed:', error);
       throw error;
@@ -56,16 +56,7 @@ class ConfigurationService {
   // Get default configuration
   async getDefaultConfiguration() {
     try {
-      const { data, error } = await supabaseProxy.supabase
-        .from('configurations')
-        .select('*')
-        .eq('is_default', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') throw error;
-      return data || null;
+      return await databaseProxy.getDefaultConfiguration();
     } catch (error) {
       console.error('Default configuration retrieval failed:', error);
       throw error;
@@ -75,23 +66,7 @@ class ConfigurationService {
   // Search configurations
   async searchConfigurations(userId, searchTerm, includePublic = false) {
     try {
-      let query = supabaseProxy.supabase
-        .from('configurations')
-        .select('*')
-        .or(`user_id.eq.${userId},is_public.eq.true`)
-        .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
-      
-      if (!includePublic) {
-        query = supabaseProxy.supabase
-          .from('configurations')
-          .select('*')
-          .eq('user_id', userId)
-          .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
-      }
-      
-      const { data, error } = await query.order('created_at', { ascending: false });
-      if (error) throw error;
-      return data || [];
+      return await databaseProxy.searchConfigurations(userId, searchTerm, includePublic);
     } catch (error) {
       console.error('Configuration search failed:', error);
       throw error;
@@ -142,7 +117,7 @@ class ConfigurationService {
   // Get configuration statistics
   async getConfigurationStats(userId) {
     try {
-      return await supabaseProxy.getConfigurationStats(userId);
+      return await databaseProxy.getConfigurationStats(userId);
     } catch (error) {
       console.error('Configuration stats retrieval failed:', error);
       throw error;

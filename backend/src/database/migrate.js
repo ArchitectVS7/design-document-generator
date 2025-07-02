@@ -161,7 +161,7 @@ class DatabaseMigrator {
         console.log(`${status} - ${file}`);
       }
       
-      console.log(`\n📈 Summary:`);
+      console.log('\n📈 Summary:');
       console.log(`- Total migrations: ${migrationFiles.length}`);
       console.log(`- Executed: ${executedMigrations.length}`);
       console.log(`- Pending: ${migrationFiles.length - executedMigrations.length}`);
@@ -178,24 +178,24 @@ const migrator = new DatabaseMigrator();
 const command = process.argv[2];
 
 switch (command) {
-  case 'run':
-    migrator.runMigrations();
-    break;
-  case 'status':
-    migrator.showStatus();
-    break;
-  case 'rollback':
-    const filename = process.argv[3];
-    if (!filename) {
-      console.error('❌ Please specify a migration filename to rollback');
-      process.exit(1);
-    }
-    migrator.rollbackMigration(filename);
-    break;
-  default:
-    console.log('Usage: node migrate.js [run|status|rollback <filename>]');
-    console.log('  run      - Execute all pending migrations');
-    console.log('  status   - Show migration status');
-    console.log('  rollback - Rollback a specific migration');
+case 'run':
+  migrator.runMigrations();
+  break;
+case 'status':
+  migrator.showStatus();
+  break;
+case 'rollback':
+  const filename = process.argv[3];
+  if (!filename) {
+    console.error('❌ Please specify a migration filename to rollback');
     process.exit(1);
+  }
+  migrator.rollbackMigration(filename);
+  break;
+default:
+  console.log('Usage: node migrate.js [run|status|rollback <filename>]');
+  console.log('  run      - Execute all pending migrations');
+  console.log('  status   - Show migration status');
+  console.log('  rollback - Rollback a specific migration');
+  process.exit(1);
 } 
