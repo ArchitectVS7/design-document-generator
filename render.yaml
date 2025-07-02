@@ -45,7 +45,6 @@ services:
   - type: web
     name: design-doc-generator-frontend
     runtime: static
-    plan: free # Upgrade for custom domain
     buildCommand: "npm install && npm run build"
     staticPublishPath: ./dist
     headers:
