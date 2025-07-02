@@ -11,7 +11,6 @@ import { fileURLToPath } from 'url';
 // Import configurations and services
 import databaseConfig from './config/database.js';
 import sessionConfig from './config/session.js';
-import supabaseProxy from './services/supabaseProxy.js';
 
 // Import routes
 import configurationRoutes from './routes/configurations.js';
@@ -158,12 +157,6 @@ class Server {
           message: error.message
         });
       }
-    });
-
-    // Health check endpoint for Supabase
-    this.app.get('/api/v1/health/supabase', async (req, res) => {
-      const health = await supabaseProxy.healthCheck();
-      res.json(health);
     });
 
     // API routes with versioning

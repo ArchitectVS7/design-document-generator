@@ -1,12 +1,12 @@
-# Design Document Generator v0.7.0
+# Design Document Generator v0.7.1
 
 A multi-agent system that transforms creative ideas into comprehensive technical specifications using specialized AI agents.
 
 ## Current Status: Phase 1 - Internal Testing
 
-**Version:** 0.7.0  
-**Phase:** Internal Testing  
-**Status:** Basic React application with Tailwind CSS
+**Version:** 0.7.1  *(see src/utils/version.ts: APP_VERSION)*
+**Phase:** Online Deployment Preps
+**Status:** Resolving Backend Issues
 
 ## Features Implemented (Phase 1)
 
@@ -102,6 +102,8 @@ This project follows semantic versioning (X.Y.Z):
 - **Major (X):** Breaking changes
 - **Minor (Y):** New features, backwards-compatible
 - **Patch (Z):** Bug fixes, minor improvements
+
+> **Note:** The current version is managed by the `APP_VERSION` variable in [`src/utils/version.ts`](src/utils/version.ts). Where possible, reference this variable programmatically in the codebase and documentation generation.
 
 ### Development Phases by Version
 - `v0.7.x` = Internal Testing

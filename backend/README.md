@@ -1,4 +1,4 @@
-# Design Document Generator Backend v0.7.0
+# Design Document Generator Backend v0.7.1
 
 ## Overview
 This is the backend API for the Design Document Generator, implementing Phase 5 functionality with Express.js, database integration, and secure API client communication.
@@ -7,7 +7,7 @@ This is the backend API for the Design Document Generator, implementing Phase 5 
 
 ### ✅ Phase 5 Implementation
 - **Express.js Backend API** - RESTful API with comprehensive endpoints
-- **Database Integration** - Support for PostgreSQL (local) and Supabase (online)
+- **Database Integration** - Support for PostgreSQL (local and Render-managed)
 - **Admin Database Selection** - Switch between database types at runtime
 - **Configuration Storage** - Full CRUD operations for configurations
 - **Session Management** - Secure session handling with database storage

@@ -1,7 +1,7 @@
 // Version management utilities for Design Document Generator v0.7.0
 
-export const APP_VERSION = "0.7.0";
-export const COMPATIBLE_VERSIONS = ["0.7.0"];
+export const APP_VERSION = "0.7.1";
+export const COMPATIBLE_VERSIONS = ["0.7.1"];
 
 export interface VersionInfo {
   version: string;
