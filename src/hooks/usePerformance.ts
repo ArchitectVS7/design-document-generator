@@ -50,13 +50,13 @@ export const usePerformance = () => {
     // Measure memory usage (if available)
     const measureMemoryUsage = () => {
       try {
-        // @ts-ignore - memory API may not be available in all browsers
+        // @ts-expect-error - memory API may not be available in all browsers
         if (window.performance && window.performance.memory) {
-          // @ts-ignore
+          // @ts-expect-error - memory API types not fully supported
           const memoryUsage = window.performance.memory.usedJSHeapSize;
           setMetrics(prev => ({ ...prev, memoryUsage }));
         }
-      } catch (e) {
+      } catch {
         // Memory API not available
       }
     };
@@ -86,7 +86,7 @@ export const usePerformance = () => {
 
         observer.observe({ entryTypes: ['resource'] });
         return () => observer.disconnect();
-      } catch (e) {
+      } catch {
         return () => {}; // No-op cleanup
       }
     };
@@ -104,7 +104,7 @@ export const usePerformance = () => {
       // First Input Delay
       const fidObserver = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          // @ts-ignore
+          // @ts-expect-error - FID API types not fully supported
           setWebVitals(prev => ({ ...prev, FID: entry.processingStart - entry.startTime }));
         }
       });
@@ -114,9 +114,9 @@ export const usePerformance = () => {
       let clsValue = 0;
       const clsObserver = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-          // @ts-ignore
+          // @ts-expect-error - CLS API types not fully supported
           if (!entry.hadRecentInput) {
-            // @ts-ignore
+            // @ts-expect-error - CLS API types not fully supported
             clsValue += entry.value;
             setWebVitals(prev => ({ ...prev, CLS: clsValue }));
           }

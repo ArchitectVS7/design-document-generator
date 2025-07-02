@@ -4,7 +4,7 @@ import fetch from 'node-fetch';
 const router = express.Router();
 
 router.post('/anthropic', async (req, res) => {
-  const { prompt, maxTokens, temperature, _outputFormat } = req.body; // eslint-disable-line @typescript-eslint/no-unused-vars
+  const { prompt, maxTokens, temperature } = req.body;
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Anthropic API key not set' });
 

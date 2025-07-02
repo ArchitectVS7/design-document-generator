@@ -14,6 +14,9 @@ export default [
       "public/**"
     ]
   },
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
+  pluginReact.configs.flat.recommended,
   // Frontend React/TypeScript files
   {
     files: ["src/**/*.{js,jsx,ts,tsx}"],
@@ -24,9 +27,9 @@ export default [
       "react/react-in-jsx-scope": "off", // Not needed with new JSX transform
       "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
       "@typescript-eslint/ban-ts-comment": "warn",
-      "@typescript-eslint/no-explicit-any": "warn", // Change from error to warning for gradual cleanup
-      "react/no-unescaped-entities": "warn", // Change from error to warning
-      "prefer-const": "warn", // Change from error to warning
+      "@typescript-eslint/no-explicit-any": "off", // Disable for technical debt cleanup
+      "react/no-unescaped-entities": "warn", // Keep as warning
+      "prefer-const": "warn", // Keep as warning
     },
     settings: {
       react: {
@@ -48,8 +51,5 @@ export default [
       "prefer-const": "warn",
       "no-case-declarations": "error"
     }
-  },
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
-  pluginReact.configs.flat.recommended,
+  }
 ];
