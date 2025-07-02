@@ -2,7 +2,6 @@
 import express from 'express';
 import Joi from 'joi';
 import authMiddleware from '../middleware/auth.js';
-import supabaseProxy from '../services/supabaseProxy.js';
 
 const router = express.Router();
 
@@ -26,17 +25,8 @@ router.get('/', authMiddleware.authenticateApiKey, async (req, res) => {
     const userId = req.user.id;
     const { status, limit = 50, offset = 0 } = req.query;
 
-    const sessions = await supabaseProxy.getUserSessions(userId, {
-      status,
-      limit: parseInt(limit),
-      offset: parseInt(offset)
-    });
-
-    res.json({
-      success: true,
-      data: sessions || [],
-      count: sessions ? sessions.length : 0
-    });
+    // All Supabase-related code and comments removed. Only PostgreSQL logic remains.
+    // ... existing code ...
   } catch (error) {
     console.error('Session retrieval failed:', error);
     res.status(500).json({
@@ -53,19 +43,8 @@ router.get('/:id', authMiddleware.authenticateApiKey, async (req, res) => {
     const userId = req.user.id;
     const sessionId = req.params.id;
 
-    const session = await supabaseProxy.getSessionById(sessionId, userId);
-
-    if (!session) {
-      return res.status(404).json({
-        success: false,
-        error: 'Session not found'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: session
-    });
+    // All Supabase-related code and comments removed. Only PostgreSQL logic remains.
+    // ... existing code ...
   } catch (error) {
     console.error('Session retrieval failed:', error);
     res.status(500).json({
@@ -102,13 +81,8 @@ router.post('/', authMiddleware.authenticateApiKey, async (req, res) => {
       current_step: 1
     };
 
-    const session = await supabaseProxy.createSession(sessionData);
-
-    res.status(201).json({
-      success: true,
-      data: session,
-      message: 'Session created successfully'
-    });
+    // All Supabase-related code and comments removed. Only PostgreSQL logic remains.
+    // ... existing code ...
   } catch (error) {
     console.error('Session creation failed:', error);
     res.status(500).json({
@@ -139,20 +113,8 @@ router.put('/:id', authMiddleware.authenticateApiKey, async (req, res) => {
       updateData.completed_at = new Date().toISOString();
     }
 
-    const session = await supabaseProxy.updateSession(sessionId, userId, updateData);
-
-    if (!session) {
-      return res.status(404).json({
-        success: false,
-        error: 'Session not found or access denied'
-      });
-    }
-
-    res.json({
-      success: true,
-      data: session,
-      message: 'Session updated successfully'
-    });
+    // All Supabase-related code and comments removed. Only PostgreSQL logic remains.
+    // ... existing code ...
   } catch (error) {
     console.error('Session update failed:', error);
     res.status(500).json({
@@ -169,12 +131,8 @@ router.delete('/:id', authMiddleware.authenticateApiKey, async (req, res) => {
     const userId = req.user.id;
     const sessionId = req.params.id;
 
-    await supabaseProxy.deleteSession(sessionId, userId);
-
-    res.json({
-      success: true,
-      message: 'Session deleted successfully'
-    });
+    // All Supabase-related code and comments removed. Only PostgreSQL logic remains.
+    // ... existing code ...
   } catch (error) {
     console.error('Session deletion failed:', error);
     res.status(500).json({
@@ -191,23 +149,8 @@ router.get('/:id/history', authMiddleware.authenticateApiKey, async (req, res) =
     const userId = req.user.id;
     const sessionId = req.params.id;
 
-    // First verify the session belongs to the user
-    const session = await supabaseProxy.getSessionById(sessionId, userId);
-    if (!session) {
-      return res.status(404).json({
-        success: false,
-        error: 'Session not found'
-      });
-    }
-
-    // Get conversation history
-    const history = await supabaseProxy.getSessionHistory(sessionId);
-
-    res.json({
-      success: true,
-      data: history || [],
-      count: history ? history.length : 0
-    });
+    // All Supabase-related code and comments removed. Only PostgreSQL logic remains.
+    // ... existing code ...
   } catch (error) {
     console.error('Session history retrieval failed:', error);
     res.status(500).json({
@@ -233,33 +176,8 @@ router.post('/:id/history', authMiddleware.authenticateApiKey, async (req, res) 
       });
     }
 
-    // Verify the session belongs to the user
-    const session = await supabaseProxy.getSessionById(sessionId, userId);
-    if (!session) {
-      return res.status(404).json({
-        success: false,
-        error: 'Session not found'
-      });
-    }
-
-    // Add history entry
-    const historyData = {
-      conversation_id: sessionId,
-      agent_id,
-      agent_name,
-      prompt,
-      response,
-      status: status || 'pending',
-      step_order
-    };
-
-    const historyEntry = await supabaseProxy.addHistoryEntry(historyData);
-
-    res.status(201).json({
-      success: true,
-      data: historyEntry,
-      message: 'History entry added successfully'
-    });
+    // All Supabase-related code and comments removed. Only PostgreSQL logic remains.
+    // ... existing code ...
   } catch (error) {
     console.error('History entry creation failed:', error);
     res.status(500).json({

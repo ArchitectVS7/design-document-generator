@@ -1,5 +1,5 @@
 // Configuration Service v0.7.0
-import supabaseProxy from './supabaseProxy.js';
+// All Supabase-related code and comments removed. Only PostgreSQL logic remains.
 import { v4 as uuidv4 } from 'uuid';
 
 class ConfigurationService {
