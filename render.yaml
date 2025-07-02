@@ -3,7 +3,6 @@
 
 databases:
   - name: design-doc-generator-db
-    plan: free # Upgrade to 'starter' or higher for production
     databaseName: design_doc_generator
     user: design_doc_user
     postgresMajorVersion: 15
@@ -13,7 +12,6 @@ services:
   - type: web
     name: design-doc-generator-api
     runtime: node
-    plan: free # Upgrade to 'starter' or higher for production
     buildCommand: "cd backend && npm install"
     startCommand: "cd backend && npm start"
     healthCheckPath: /health
