@@ -245,6 +245,9 @@ export const useConfigurationFile = (): UseConfigurationFileReturn => {
         finalConfig = MigrationSystem.applyTagMappings(finalConfig, migrationDialog.tagMappings);
       }
 
+      // Store the final configuration for potential use
+      console.log('Final migrated configuration prepared:', finalConfig.header.version);
+
       // Clear migration dialog
       setMigrationDialog(null);
       

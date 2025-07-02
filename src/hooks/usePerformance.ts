@@ -56,7 +56,7 @@ export const usePerformance = () => {
           const memoryUsage = window.performance.memory.usedJSHeapSize;
           setMetrics(prev => ({ ...prev, memoryUsage }));
         }
-      } catch (e) {
+      } catch (_e) {
         // Memory API not available
       }
     };
@@ -86,7 +86,7 @@ export const usePerformance = () => {
 
         observer.observe({ entryTypes: ['resource'] });
         return () => observer.disconnect();
-      } catch (e) {
+      } catch (_e) {
         return () => {}; // No-op cleanup
       }
     };
