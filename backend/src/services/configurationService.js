@@ -1,6 +1,32 @@
 // Configuration Service v0.7.0
 // All Supabase-related code and comments removed. Only PostgreSQL logic remains.
-import { v4 as uuidv4 } from 'uuid';
+// import { v4 as uuidv4 } from 'uuid'; // Reserved for future use
+
+// Placeholder for database proxy - will be replaced with PostgreSQL implementation
+const supabaseProxy = {
+  createConfiguration: () => { throw new Error('Not implemented - PostgreSQL migration pending'); },
+  getConfigurationById: () => { throw new Error('Not implemented - PostgreSQL migration pending'); },
+  getUserConfigurations: () => { throw new Error('Not implemented - PostgreSQL migration pending'); },
+  updateConfiguration: () => { throw new Error('Not implemented - PostgreSQL migration pending'); },
+  deleteConfiguration: () => { throw new Error('Not implemented - PostgreSQL migration pending'); },
+  getConfigurationStats: () => { throw new Error('Not implemented - PostgreSQL migration pending'); },
+  supabase: {
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          order: () => ({
+            limit: () => ({
+              single: () => ({ data: null, error: { code: 'PGRST116' } })
+            })
+          })
+        }),
+        or: () => ({
+          order: () => ({ data: [], error: null })
+        })
+      })
+    })
+  }
+};
 
 class ConfigurationService {
   // Create a new configuration

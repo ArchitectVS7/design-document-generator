@@ -184,7 +184,7 @@ switch (command) {
   case 'status':
     migrator.showStatus();
     break;
-  case 'rollback':
+  case 'rollback': {
     const filename = process.argv[3];
     if (!filename) {
       console.error('❌ Please specify a migration filename to rollback');
@@ -192,6 +192,7 @@ switch (command) {
     }
     migrator.rollbackMigration(filename);
     break;
+  }
   default:
     console.log('Usage: node migrate.js [run|status|rollback <filename>]');
     console.log('  run      - Execute all pending migrations');

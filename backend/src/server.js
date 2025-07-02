@@ -24,7 +24,7 @@ import authMiddleware from './middleware/auth.js';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __dirname = path.dirname(__filename); // Reserved for future use
 
 class Server {
   constructor() {
@@ -193,7 +193,7 @@ class Server {
   // Error handling middleware
   configureErrorHandling() {
     // Global error handler
-    this.app.use((error, req, res, next) => {
+    this.app.use((error, req, res, _next) => {
       console.error('Unhandled error:', error);
 
       // Don't leak error details in production

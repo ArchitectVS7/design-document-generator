@@ -1,6 +1,6 @@
 // User Service v0.7.0
-import bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
+// import bcrypt from 'bcryptjs'; // Using authMiddleware.hashPassword instead
+// import { v4 as uuidv4 } from 'uuid'; // Reserved for future use
 import databaseConfig from '../config/database.js';
 import authMiddleware from '../middleware/auth.js';
 
@@ -65,7 +65,7 @@ class UserService {
         }
         
         // Remove password hash from response
-        const { password_hash, ...userWithoutPassword } = user;
+        const { password_hash: _password_hash, ...userWithoutPassword } = user;
         return userWithoutPassword;
       } else {
         // Supabase implementation would go here
