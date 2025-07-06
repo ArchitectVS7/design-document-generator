@@ -3,10 +3,8 @@
 
 databases:
   - name: design-doc-generator-db
-    plan: free # Upgrade to 'starter' or higher for production
     databaseName: design_doc_generator
     user: design_doc_user
-    region: oregon # Change to your preferred region
     postgresMajorVersion: 15
 
 services:
@@ -14,8 +12,6 @@ services:
   - type: web
     name: design-doc-generator-api
     runtime: node
-    plan: free # Upgrade to 'starter' or higher for production
-    region: oregon # Should match database region
     buildCommand: "cd backend && npm install"
     startCommand: "cd backend && npm start"
     healthCheckPath: /health
@@ -49,8 +45,6 @@ services:
   - type: web
     name: design-doc-generator-frontend
     runtime: static
-    plan: free # Upgrade for custom domain
-    region: oregon # Should match backend region
     buildCommand: "npm install && npm run build"
     staticPublishPath: ./dist
     headers:
